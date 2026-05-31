@@ -4,89 +4,70 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Gestor de Plantões</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/dayjs.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/locale/pt-br.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
   --bg:#0a0a0f;--bg2:#13131a;--bg3:#1c1c28;--bg4:#252535;
   --accent:#6366f1;--accent2:#818cf8;--green:#22c55e;--red:#ef4444;
   --yellow:#f59e0b;--text:#f1f5f9;--text2:#94a3b8;--text3:#475569;
-  --border:#2d2d42;--radius:16px;--shadow:0 8px 32px rgba(0,0,0,0.4);
+  --border:#2d2d42;--radius:16px;
 }
 body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;min-height:100vh;overflow-x:hidden}
 
 /* NAV */
-nav{display:flex;justify-content:space-around;align-items:center;position:fixed;bottom:0;left:0;right:0;background:rgba(19,19,26,0.95);backdrop-filter:blur(20px);border-top:1px solid var(--border);padding:12px 0 20px;z-index:100}
+nav{display:flex;justify-content:space-around;align-items:center;position:fixed;bottom:0;left:0;right:0;background:rgba(19,19,26,0.97);backdrop-filter:blur(20px);border-top:1px solid var(--border);padding:12px 0 20px;z-index:100}
 nav button{background:none;border:none;color:var(--text3);display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;cursor:pointer;transition:color .2s;padding:4px 20px}
 nav button.active{color:var(--accent2)}
 nav button svg{width:24px;height:24px}
 
 /* PAGES */
-.page{display:none;padding:60px 16px 100px;max-width:480px;margin:0 auto}
+.page{display:none;padding-bottom:100px;max-width:480px;margin:0 auto}
 .page.active{display:block}
 
-/* HEADER */
-.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-top:8px}
-.header h1{font-size:28px;font-weight:700;letter-spacing:-0.5px}
-.header span{color:var(--text2);font-size:14px}
-
-/* CALENDAR */
-.cal-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-.cal-nav h2{font-size:20px;font-weight:600}
+/* CALENDAR PAGE */
+#page-cal{display:flex;flex-direction:column;height:100vh}
+.cal-top{padding:16px 16px 8px;flex-shrink:0}
+.cal-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-top:8px}
+.cal-nav h2{font-size:20px;font-weight:700;letter-spacing:-0.3px}
 .cal-nav button{background:var(--bg3);border:none;color:var(--text);width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center}
-.weekdays{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;margin-bottom:8px}
+.weekdays{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;margin-bottom:6px}
 .weekdays span{font-size:11px;color:var(--text3);font-weight:600;padding:4px 0}
-.days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
-.day{min-height:52px;border-radius:12px;display:flex;flex-direction:column;align-items:center;padding:6px 2px;cursor:pointer;transition:background .2s;position:relative}
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.day{min-height:48px;border-radius:10px;display:flex;flex-direction:column;align-items:center;padding:5px 2px;cursor:pointer;transition:background .15s;position:relative}
 .day:hover{background:var(--bg3)}
+.day.selected{background:var(--bg4);border:1.5px solid var(--accent)}
 .day.other-month .day-num{color:var(--text3)}
-.day.today .day-num{background:var(--accent);color:#fff;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center}
-.day-num{font-size:14px;font-weight:500;width:28px;height:28px;display:flex;align-items:center;justify-content:center}
-.day-dots{display:flex;gap:2px;flex-wrap:wrap;justify-content:center;margin-top:2px;max-width:40px}
-.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.day.today .day-num{background:var(--accent);color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center}
+.day-num{font-size:14px;font-weight:500;width:26px;height:26px;display:flex;align-items:center;justify-content:center}
+.day-dots{display:flex;gap:2px;flex-wrap:wrap;justify-content:center;margin-top:2px;max-width:36px}
+.dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
 
-/* MODAL */
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:200;align-items:flex-end}
-.overlay.open{display:flex}
-.modal{background:var(--bg2);border-radius:24px 24px 0 0;padding:24px;width:100%;max-height:85vh;overflow-y:auto;animation:slideUp .3s ease}
-@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px}
-.modal h3{font-size:18px;font-weight:600;margin-bottom:20px}
+/* DAY DETAIL PANEL */
+.day-panel{flex:1;overflow-y:auto;background:var(--bg2);border-top:1px solid var(--border);padding:16px}
+.day-panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.day-panel-header h3{font-size:16px;font-weight:600;color:var(--text)}
+.add-btn{background:var(--accent);border:none;color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;line-height:1}
 
-/* FORM */
-.form-group{margin-bottom:16px}
-.form-group label{display:block;font-size:12px;color:var(--text2);margin-bottom:6px;font-weight:500;text-transform:uppercase;letter-spacing:0.5px}
-.form-group input,.form-group select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:12px 16px;color:var(--text);font-size:15px;outline:none;transition:border .2s}
-.form-group input:focus,.form-group select:focus{border-color:var(--accent)}
-.form-group select option{background:var(--bg3)}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-
-/* TYPE SELECTOR */
-.type-sel{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px}
-.type-btn{padding:12px;border-radius:12px;border:2px solid var(--border);background:var(--bg3);color:var(--text2);cursor:pointer;font-size:14px;font-weight:500;transition:all .2s;text-align:center}
-.type-btn.active{border-color:var(--accent);color:var(--accent2);background:rgba(99,102,241,0.1)}
-
-/* COLORS */
-.color-picker{display:flex;gap:8px;flex-wrap:wrap}
-.color-opt{width:32px;height:32px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:border .2s}
-.color-opt.selected{border-color:#fff}
-
-/* BUTTONS */
-.btn{width:100%;padding:16px;border-radius:14px;border:none;font-size:16px;font-weight:600;cursor:pointer;transition:all .2s;margin-top:8px}
-.btn-primary{background:var(--accent);color:#fff}
-.btn-primary:hover{background:var(--accent2)}
-.btn-danger{background:rgba(239,68,68,0.15);color:var(--red);margin-top:8px}
-.btn-close{background:var(--bg3);color:var(--text2)}
-
-/* LOCAL BADGE */
-.local-item{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border-radius:12px;margin-bottom:8px}
-.local-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
-.local-name{flex:1;font-size:15px}
-.local-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;padding:4px}
+/* EVENT CARDS */
+.event-card{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg3);border-radius:12px;margin-bottom:8px}
+.event-bar{width:4px;height:40px;border-radius:2px;flex-shrink:0}
+.event-info{flex:1;min-width:0}
+.event-title{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.event-sub{font-size:12px;color:var(--text3);margin-top:2px}
+.event-desc{font-size:12px;color:var(--text2);margin-top:2px;font-style:italic}
+.event-right{text-align:right;flex-shrink:0}
+.event-valor{font-size:14px;font-weight:600}
+.event-status{font-size:11px;margin-top:2px}
+.status-pend{color:var(--yellow)}
+.status-rec{color:var(--green)}
+.event-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:4px;margin-left:4px}
+.empty-day{text-align:center;color:var(--text3);padding:32px 0;font-size:14px}
 
 /* DASHBOARD */
-.dash-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+#page-dash{padding:60px 16px 100px}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-top:8px}
+.header h1{font-size:28px;font-weight:700;letter-spacing:-0.5px}
+.dash-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
 .dash-nav h2{font-size:20px;font-weight:600}
 .dash-nav button{background:var(--bg3);border:none;color:var(--text);width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center}
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
@@ -96,48 +77,73 @@ nav button svg{width:24px;height:24px}
 .card-value.yellow{color:var(--yellow)}
 .card-sub{font-size:13px;color:var(--text3);margin-top:4px}
 .plantao-item{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:var(--bg3);border-radius:12px;margin-bottom:8px}
-.plantao-info{display:flex;align-items:center;gap:10px}
-.plantao-cor{width:10px;height:10px;border-radius:50%}
+.plantao-info{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+.plantao-cor{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 .plantao-nome{font-size:14px;font-weight:500}
 .plantao-data{font-size:12px;color:var(--text3);margin-top:2px}
-.plantao-val{text-align:right}
+.plantao-val{text-align:right;flex-shrink:0}
 .plantao-valor{font-size:15px;font-weight:600}
-.plantao-status{font-size:11px;margin-top:2px}
-.status-pend{color:var(--yellow)}
-.status-rec{color:var(--green)}
-.check-btn{background:none;border:1.5px solid var(--border);border-radius:8px;width:28px;height:28px;cursor:pointer;color:var(--text3);font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .2s;margin-left:8px}
+.check-btn{background:none;border:1.5px solid var(--border);border-radius:8px;width:28px;height:28px;cursor:pointer;color:var(--text3);font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .2s;margin-left:8px;flex-shrink:0}
 .check-btn.done{background:var(--green);border-color:var(--green);color:#fff}
-
-/* DAY DETAIL */
-.day-event{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border-radius:12px;margin-bottom:8px}
-.day-event-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-.day-event-info{flex:1}
-.day-event-title{font-size:14px;font-weight:500}
-.day-event-sub{font-size:12px;color:var(--text3);margin-top:2px}
-.day-event-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:4px}
-
-.empty{text-align:center;color:var(--text3);padding:32px 0;font-size:14px}
 .section-title{font-size:13px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin:20px 0 10px}
+.empty{text-align:center;color:var(--text3);padding:32px 0;font-size:14px}
 
-.tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+/* LOCAIS */
+#page-locais{padding:60px 16px 100px}
+.local-item{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border-radius:12px;margin-bottom:8px}
+.local-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.local-name{flex:1;font-size:15px}
+.local-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;padding:4px}
+
+/* MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:200;align-items:flex-end}
+.overlay.open{display:flex}
+.modal{background:var(--bg2);border-radius:24px 24px 0 0;padding:24px;width:100%;max-height:88vh;overflow-y:auto;animation:slideUp .3s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px}
+.modal h3{font-size:18px;font-weight:600;margin-bottom:20px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:12px;color:var(--text2);margin-bottom:6px;font-weight:500;text-transform:uppercase;letter-spacing:0.5px}
+.form-group input,.form-group select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:12px 16px;color:var(--text);font-size:15px;outline:none;transition:border .2s}
+.form-group input:focus,.form-group select:focus{border-color:var(--accent)}
+.form-group select option{background:var(--bg3)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.type-sel{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px}
+.type-btn{padding:12px;border-radius:12px;border:2px solid var(--border);background:var(--bg3);color:var(--text2);cursor:pointer;font-size:14px;font-weight:500;transition:all .2s;text-align:center}
+.type-btn.active{border-color:var(--accent);color:var(--accent2);background:rgba(99,102,241,0.1)}
+.color-picker{display:flex;gap:8px;flex-wrap:wrap}
+.color-opt{width:32px;height:32px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:border .2s}
+.color-opt.selected{border-color:#fff}
+.btn{width:100%;padding:16px;border-radius:14px;border:none;font-size:16px;font-weight:600;cursor:pointer;transition:all .2s;margin-top:8px}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-close{background:var(--bg3);color:var(--text2)}
 </style>
 </head>
 <body>
 
-<!-- PAGES -->
+<!-- CALENDAR PAGE -->
 <div id="page-cal" class="page active">
-  <div class="header"><h1 id="cal-title">Calendário</h1></div>
-  <div class="cal-nav">
-    <button onclick="changeMonth(-1)">‹</button>
-    <h2 id="month-label"></h2>
-    <button onclick="changeMonth(1)">›</button>
+  <div class="cal-top">
+    <div class="cal-nav">
+      <button onclick="changeMonth(-1)">‹</button>
+      <h2 id="month-label"></h2>
+      <button onclick="changeMonth(1)">›</button>
+    </div>
+    <div class="weekdays">
+      <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
+    </div>
+    <div class="days" id="days-grid"></div>
   </div>
-  <div class="weekdays">
-    <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
+  <div class="day-panel">
+    <div class="day-panel-header">
+      <h3 id="panel-date-label">Selecione um dia</h3>
+      <button class="add-btn" onclick="openAddModal()" title="Adicionar">+</button>
+    </div>
+    <div id="panel-events"></div>
   </div>
-  <div class="days" id="days-grid"></div>
 </div>
 
+<!-- DASHBOARD -->
 <div id="page-dash" class="page">
   <div class="header"><h1>Dashboard</h1></div>
   <div class="dash-nav">
@@ -148,6 +154,7 @@ nav button svg{width:24px;height:24px}
   <div id="dash-content"></div>
 </div>
 
+<!-- LOCAIS -->
 <div id="page-locais" class="page">
   <div class="header"><h1>Locais</h1></div>
   <button class="btn btn-primary" onclick="openLocalModal()" style="margin-bottom:20px">+ Adicionar Local</button>
@@ -170,20 +177,20 @@ nav button svg{width:24px;height:24px}
   </button>
 </nav>
 
-<!-- MODAL DIA -->
-<div class="overlay" id="overlay-day" onclick="closeIfOverlay(event,'overlay-day')">
+<!-- MODAL ADICIONAR -->
+<div class="overlay" id="overlay-add" onclick="closeIfOverlay(event,'overlay-add')">
   <div class="modal">
     <div class="modal-handle"></div>
-    <h3 id="modal-day-title">Dia</h3>
-    <div id="day-events-list"></div>
+    <h3 id="modal-add-title">Adicionar</h3>
     <div class="type-sel">
       <button class="type-btn active" id="tb-plantao" onclick="setType('plantao')">🏥 Plantão</button>
       <button class="type-btn" id="tb-evento" onclick="setType('evento')">🎉 Evento</button>
     </div>
+    <!-- FORM PLANTAO -->
     <div id="form-plantao">
       <div class="form-group">
         <label>Local do Plantão</label>
-        <select id="sel-local" onchange="onLocalChange()"><option value="">Selecione...</option></select>
+        <select id="sel-local"><option value="">Selecione...</option></select>
       </div>
       <div class="row2">
         <div class="form-group">
@@ -210,6 +217,7 @@ nav button svg{width:24px;height:24px}
         <input type="text" id="inp-descricao" placeholder="Ex: Base 552, escala extra..."/>
       </div>
     </div>
+    <!-- FORM EVENTO -->
     <div id="form-evento" style="display:none">
       <div class="form-group">
         <label>Descrição</label>
@@ -240,7 +248,7 @@ nav button svg{width:24px;height:24px}
       </div>
     </div>
     <button class="btn btn-primary" onclick="saveEvent()">Salvar</button>
-    <button class="btn btn-close" onclick="closeModal('overlay-day')" style="margin-top:8px">Cancelar</button>
+    <button class="btn btn-close" onclick="closeModal('overlay-add')" style="margin-top:8px">Cancelar</button>
   </div>
 </div>
 
@@ -272,45 +280,37 @@ nav button svg{width:24px;height:24px}
 </div>
 
 <script>
-const SUPA_URL = 'https://pjhelcgrtqspmdecwaji.supabase.co';
-const SUPA_KEY = 'sb_publishable_5Bjh8HaZECZeHPxO-Q98KQ_K2PRvA8q';
-const headers = {'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Prefer':'return=representation'};
+const SUPA_URL='https://pjhelcgrtqspmdecwaji.supabase.co';
+const SUPA_KEY='sb_publishable_5Bjh8HaZECZeHPxO-Q98KQ_K2PRvA8q';
+const hdrs={'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Prefer':'return=representation'};
 
-// STATE
-let curMonth = new Date().getMonth();
-let curYear = new Date().getFullYear();
-let dashMonth = new Date().getMonth();
-let dashYear = new Date().getFullYear();
-let selectedDate = null;
-let eventType = 'plantao';
-let localColor = '#6366f1';
-let eventoColor = '#6366f1';
-let locais = [];
-let plantoes = [];
-let eventos = [];
+let curMonth=new Date().getMonth(), curYear=new Date().getFullYear();
+let dashMonth=new Date().getMonth(), dashYear=new Date().getFullYear();
+let selectedDate=null, eventType='plantao', localColor='#6366f1', eventoColor='#6366f1';
+let locais=[], plantoes=[], eventos=[];
 
-const MONTHS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const MONTHS=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 
-// API
-async function api(path, method='GET', body=null){
-  const opts = {method, headers};
-  if(body) opts.body = JSON.stringify(body);
-  const r = await fetch(SUPA_URL+'/rest/v1/'+path, opts);
+async function api(path,method='GET',body=null){
+  const o={method,headers:hdrs};
+  if(body) o.body=JSON.stringify(body);
+  const r=await fetch(SUPA_URL+'/rest/v1/'+path,o);
   if(!r.ok) return null;
-  const t = await r.text();
-  return t ? JSON.parse(t) : null;
+  const t=await r.text();
+  return t?JSON.parse(t):null;
 }
 
 async function loadAll(){
-  locais = await api('locais?select=*&order=created_at') || [];
-  plantoes = await api('plantoes?select=*,locais(*)&order=data_inicio') || [];
-  eventos = await api('eventos?select=*&order=data') || [];
+  locais=await api('locais?select=*&order=created_at')||[];
+  plantoes=await api('plantoes?select=*,locais(*)&order=data_inicio')||[];
+  eventos=await api('eventos?select=*&order=data')||[];
   renderCalendar();
   renderLocais();
+  if(selectedDate) renderPanel();
 }
 
 // PAGES
-function showPage(name, btn){
+function showPage(name,btn){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
@@ -320,67 +320,69 @@ function showPage(name, btn){
 }
 
 // CALENDAR
-function changeMonth(d){curMonth+=d;if(curMonth>11){curMonth=0;curYear++;}if(curMonth<0){curMonth=11;curYear--;}renderCalendar();}
+function changeMonth(d){
+  curMonth+=d;
+  if(curMonth>11){curMonth=0;curYear++;}
+  if(curMonth<0){curMonth=11;curYear--;}
+  selectedDate=null;
+  renderCalendar();
+  renderPanel();
+}
 
 function renderCalendar(){
-  document.getElementById('month-label').textContent = MONTHS[curMonth]+' '+curYear;
-  const grid = document.getElementById('days-grid');
+  document.getElementById('month-label').textContent=MONTHS[curMonth]+' '+curYear;
+  const grid=document.getElementById('days-grid');
   grid.innerHTML='';
-  const first = new Date(curYear,curMonth,1).getDay();
-  const daysInMonth = new Date(curYear,curMonth+1,0).getDate();
-  const prevDays = new Date(curYear,curMonth,0).getDate();
-  const today = new Date();
+  const first=new Date(curYear,curMonth,1).getDay();
+  const dim=new Date(curYear,curMonth+1,0).getDate();
+  const prevDays=new Date(curYear,curMonth,0).getDate();
+  const today=new Date();
 
-  // prev month
   for(let i=first-1;i>=0;i--){
-    const d = prevDays-i;
-    const el = makeDay(d, curMonth-1<0?11:curMonth-1, curMonth-1<0?curYear-1:curYear, true);
-    grid.appendChild(el);
+    const m=curMonth-1<0?11:curMonth-1;
+    const y=curMonth-1<0?curYear-1:curYear;
+    grid.appendChild(makeDay(prevDays-i,m,y,true));
   }
-  // current
-  for(let d=1;d<=daysInMonth;d++){
-    const isToday = d===today.getDate()&&curMonth===today.getMonth()&&curYear===today.getFullYear();
-    const el = makeDay(d,curMonth,curYear,false,isToday);
-    grid.appendChild(el);
+  for(let d=1;d<=dim;d++){
+    const isToday=d===today.getDate()&&curMonth===today.getMonth()&&curYear===today.getFullYear();
+    const isSel=selectedDate&&selectedDate.d===d&&selectedDate.m===curMonth&&selectedDate.y===curYear;
+    grid.appendChild(makeDay(d,curMonth,curYear,false,isToday,isSel));
   }
-  // next
-  const total = first+daysInMonth;
-  const next = total%7===0?0:7-total%7;
+  const total=first+dim;
+  const next=total%7===0?0:7-total%7;
   for(let d=1;d<=next;d++){
-    const el = makeDay(d, curMonth+1>11?0:curMonth+1, curMonth+1>11?curYear+1:curYear, true);
-    grid.appendChild(el);
+    const m=curMonth+1>11?0:curMonth+1;
+    const y=curMonth+1>11?curYear+1:curYear;
+    grid.appendChild(makeDay(d,m,y,true));
   }
 }
 
-function makeDay(d, m, y, other, isToday){
-  const el = document.createElement('div');
-  el.className='day'+(other?' other-month':'')+(isToday?' today':'');
-  const numEl = document.createElement('div');
+function makeDay(d,m,y,other,isToday,isSel){
+  const el=document.createElement('div');
+  el.className='day'+(other?' other-month':'')+(isToday?' today':'')+(isSel?' selected':'');
+  const numEl=document.createElement('div');
   numEl.className='day-num';
   numEl.textContent=d;
   el.appendChild(numEl);
 
-  // dots
-  const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-  const dots = document.createElement('div');
+  const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+  const dots=document.createElement('div');
   dots.className='day-dots';
 
-  // plantões nesse dia
   plantoes.forEach(p=>{
-    const ini = p.data_inicio.slice(0,10);
-    const fim = p.data_fim.slice(0,10);
-    if(dateStr>=ini && dateStr<=fim){
-      const dot = document.createElement('div');
+    const ini=p.data_inicio.slice(0,10);
+    const fim=p.data_fim.slice(0,10);
+    if(ds>=ini&&ds<=fim){
+      const dot=document.createElement('div');
       dot.className='dot';
-      dot.style.background = p.locais?.cor||'#6366f1';
+      dot.style.background=p.locais?.cor||'#6366f1';
       dots.appendChild(dot);
     }
   });
 
-  // eventos nesse dia
   eventos.forEach(e=>{
-    if(e.data===dateStr){
-      const dot = document.createElement('div');
+    if(e.data===ds){
+      const dot=document.createElement('div');
       dot.className='dot';
       dot.style.background=e.cor||'#6366f1';
       dots.appendChild(dot);
@@ -388,89 +390,114 @@ function makeDay(d, m, y, other, isToday){
   });
 
   el.appendChild(dots);
-  el.onclick=()=>openDayModal(d,m,y);
+  if(!other) el.onclick=()=>selectDay(d,m,y);
   return el;
 }
 
-// DAY MODAL
-function openDayModal(d,m,y){
+function selectDay(d,m,y){
   selectedDate={d,m,y};
-  const label = `${String(d).padStart(2,'0')}/${String(m+1).padStart(2,'0')}/${y}`;
-  document.getElementById('modal-day-title').textContent=label;
+  renderCalendar();
+  renderPanel();
+}
 
-  // pre-fill datetime
-  const ds = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+function renderPanel(){
+  const lbl=document.getElementById('panel-date-label');
+  const panel=document.getElementById('panel-events');
+
+  if(!selectedDate){
+    lbl.textContent='Selecione um dia';
+    panel.innerHTML='<div class="empty-day">Toque em um dia para ver os compromissos</div>';
+    return;
+  }
+
+  const {d,m,y}=selectedDate;
+  const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+  const dayNames=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const dow=new Date(y,m,d).getDay();
+  lbl.textContent=`${dayNames[dow]}, ${String(d).padStart(2,'0')}/${String(m+1).padStart(2,'0')}/${y}`;
+
+  panel.innerHTML='';
+  const dayP=plantoes.filter(p=>ds>=p.data_inicio.slice(0,10)&&ds<=p.data_fim.slice(0,10));
+  const dayE=eventos.filter(e=>e.data===ds);
+
+  if(dayP.length===0&&dayE.length===0){
+    panel.innerHTML='<div class="empty-day">Nenhum compromisso neste dia</div>';
+    return;
+  }
+
+  dayP.forEach(p=>{
+    const el=document.createElement('div');
+    el.className='event-card';
+    const ini=p.data_inicio.slice(11,16);
+    const fim=p.data_fim.slice(11,16);
+    const desc=p.descricao?`<div class="event-desc">${p.descricao}</div>`:'';
+    el.innerHTML=`
+      <div class="event-bar" style="background:${p.locais?.cor||'#6366f1'}"></div>
+      <div class="event-info">
+        <div class="event-title">${p.locais?.nome||'Plantão'}</div>
+        <div class="event-sub">${ini} – ${fim} · R$ ${Number(p.valor).toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+        ${desc}
+      </div>
+      <div class="event-right">
+        <div class="event-status ${p.recebido?'status-rec':'status-pend'}">${p.recebido?'✅ Recebido':'⏳ Pendente'}</div>
+      </div>
+      <button class="event-del" onclick="deletePlantao('${p.id}','${ds}')">🗑</button>
+    `;
+    panel.appendChild(el);
+  });
+
+  dayE.forEach(e=>{
+    const el=document.createElement('div');
+    el.className='event-card';
+    el.innerHTML=`
+      <div class="event-bar" style="background:${e.cor||'#6366f1'}"></div>
+      <div class="event-info">
+        <div class="event-title">${e.titulo}</div>
+        <div class="event-sub">${e.tipo}</div>
+      </div>
+      <button class="event-del" onclick="deleteEvento('${e.id}','${ds}')">🗑</button>
+    `;
+    panel.appendChild(el);
+  });
+}
+
+async function deletePlantao(id,ds){
+  await api('plantoes?id=eq.'+id,'DELETE');
+  plantoes=plantoes.filter(p=>p.id!==id);
+  renderCalendar();
+  renderPanel();
+}
+
+async function deleteEvento(id,ds){
+  await api('eventos?id=eq.'+id,'DELETE');
+  eventos=eventos.filter(e=>e.id!==id);
+  renderCalendar();
+  renderPanel();
+}
+
+// ADD MODAL
+function openAddModal(){
+  if(!selectedDate){alert('Selecione um dia primeiro!');return;}
+  const {d,m,y}=selectedDate;
+  const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+  document.getElementById('modal-add-title').textContent=`Adicionar — ${String(d).padStart(2,'0')}/${String(m+1).padStart(2,'0')}/${y}`;
   document.getElementById('inp-inicio').value=ds+'T07:00';
   document.getElementById('inp-fim').value=ds+'T19:00';
   document.getElementById('inp-pgto').value=ds;
   document.getElementById('inp-valor').value='';
+  document.getElementById('inp-descricao').value='';
+  document.getElementById('inp-evento-titulo').value='';
 
-  // fill locais
-  const sel = document.getElementById('sel-local');
+  const sel=document.getElementById('sel-local');
   sel.innerHTML='<option value="">Selecione...</option>';
   locais.forEach(l=>{
-    const o = document.createElement('option');
-    o.value=l.id; o.textContent=l.nome;
+    const o=document.createElement('option');
+    o.value=l.id;o.textContent=l.nome;
     sel.appendChild(o);
   });
 
   setType('plantao');
-  renderDayEvents(ds);
-  document.getElementById('overlay-day').classList.add('open');
-}
-
-function renderDayEvents(ds){
-  const list = document.getElementById('day-events-list');
-  list.innerHTML='';
-  const dayPlantoes = plantoes.filter(p=>ds>=p.data_inicio.slice(0,10)&&ds<=p.data_fim.slice(0,10));
-  const dayEventos = eventos.filter(e=>e.data===ds);
-
-  if(dayPlantoes.length===0&&dayEventos.length===0){
-    list.innerHTML='';
-    return;
-  }
-
-  dayPlantoes.forEach(p=>{
-    const el = document.createElement('div');
-    el.className='day-event';
-    el.innerHTML=`
-      <div class="day-event-dot" style="background:${p.locais?.cor||'#6366f1'}"></div>
-      <div class="day-event-info">
-        <div class="day-event-title">${p.locais?.nome||'Plantão'}</div>
-        <div class="day-event-sub">${p.data_inicio.slice(11,16)} – ${p.data_fim.slice(11,16)} · R$ ${Number(p.valor).toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
-      </div>
-      <button class="day-event-del" onclick="deletePlantao('${p.id}','${ds}')">🗑</button>
-    `;
-    list.appendChild(el);
-  });
-
-  dayEventos.forEach(e=>{
-    const el = document.createElement('div');
-    el.className='day-event';
-    el.innerHTML=`
-      <div class="day-event-dot" style="background:${e.cor||'#6366f1'}"></div>
-      <div class="day-event-info">
-        <div class="day-event-title">${e.titulo}</div>
-        <div class="day-event-sub">${e.tipo}</div>
-      </div>
-      <button class="day-event-del" onclick="deleteEvento('${e.id}','${ds}')">🗑</button>
-    `;
-    list.appendChild(el);
-  });
-}
-
-async function deletePlantao(id, ds){
-  await api('plantoes?id=eq.'+id,'DELETE');
-  plantoes = plantoes.filter(p=>p.id!==id);
-  renderCalendar();
-  renderDayEvents(ds);
-}
-
-async function deleteEvento(id, ds){
-  await api('eventos?id=eq.'+id,'DELETE');
-  eventos = eventos.filter(e=>e.id!==id);
-  renderCalendar();
-  renderDayEvents(ds);
+  document.getElementById('overlay-add').classList.add('open');
 }
 
 function setType(t){
@@ -481,21 +508,13 @@ function setType(t){
   document.getElementById('form-evento').style.display=t==='evento'?'block':'none';
 }
 
-function onLocalChange(){
-  const id = document.getElementById('sel-local').value;
-  // auto-fill if needed
-}
-
 function selectLocalColor(el){
   document.querySelectorAll('#local-colors .color-opt').forEach(e=>e.classList.remove('selected'));
-  el.classList.add('selected');
-  localColor=el.dataset.color;
+  el.classList.add('selected');localColor=el.dataset.color;
 }
-
 function selectEventoColor(el){
   document.querySelectorAll('#evento-colors .color-opt').forEach(e=>e.classList.remove('selected'));
-  el.classList.add('selected');
-  eventoColor=el.dataset.color;
+  el.classList.add('selected');eventoColor=el.dataset.color;
 }
 
 async function saveEvent(){
@@ -505,24 +524,23 @@ async function saveEvent(){
     const fim=document.getElementById('inp-fim').value;
     const pgto=document.getElementById('inp-pgto').value;
     const valor=parseFloat(document.getElementById('inp-valor').value);
+    const descricao=document.getElementById('inp-descricao').value.trim();
     if(!localId||!ini||!fim||!pgto||isNaN(valor)) return alert('Preencha todos os campos!');
-    const descricao = document.getElementById('inp-descricao').value.trim();
-    const res = await api('plantoes','POST',{local_id:localId,data_inicio:ini,data_fim:fim,data_pagamento:pgto,valor,descricao});
-    if(res) await loadAll();
+    await api('plantoes','POST',{local_id:localId,data_inicio:ini,data_fim:fim,data_pagamento:pgto,valor,descricao});
   } else {
     const titulo=document.getElementById('inp-evento-titulo').value.trim();
     const tipo=document.getElementById('inp-evento-tipo').value;
     if(!titulo) return alert('Informe a descrição!');
-    const ds=`${selectedDate.y}-${String(selectedDate.m+1).padStart(2,'0')}-${String(selectedDate.d).padStart(2,'0')}`;
-    const res = await api('eventos','POST',{titulo,data:ds,tipo,cor:eventoColor});
-    if(res) await loadAll();
+    const {d,m,y}=selectedDate;
+    const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    await api('eventos','POST',{titulo,data:ds,tipo,cor:eventoColor});
   }
-  closeModal('overlay-day');
+  await loadAll();
+  closeModal('overlay-add');
 }
 
 // LOCAIS
 function openLocalModal(){document.getElementById('overlay-local').classList.add('open');}
-
 async function saveLocal(){
   const nome=document.getElementById('inp-local-nome').value.trim();
   if(!nome) return alert('Informe o nome!');
@@ -531,23 +549,17 @@ async function saveLocal(){
   await loadAll();
   closeModal('overlay-local');
 }
-
 function renderLocais(){
   const list=document.getElementById('locais-list');
   list.innerHTML='';
-  if(locais.length===0){list.innerHTML='<div class="empty">Nenhum local cadastrado</div>';return;}
+  if(!locais.length){list.innerHTML='<div class="empty">Nenhum local cadastrado</div>';return;}
   locais.forEach(l=>{
     const el=document.createElement('div');
     el.className='local-item';
-    el.innerHTML=`
-      <div class="local-dot" style="background:${l.cor}"></div>
-      <span class="local-name">${l.nome}</span>
-      <button class="local-del" onclick="deleteLocal('${l.id}')">🗑</button>
-    `;
+    el.innerHTML=`<div class="local-dot" style="background:${l.cor}"></div><span class="local-name">${l.nome}</span><button class="local-del" onclick="deleteLocal('${l.id}')">🗑</button>`;
     list.appendChild(el);
   });
 }
-
 async function deleteLocal(id){
   if(!confirm('Remover este local?')) return;
   await api('locais?id=eq.'+id,'DELETE');
@@ -561,60 +573,44 @@ function changeDashMonth(d){
   if(dashMonth<0){dashMonth=11;dashYear--;}
   renderDash();
 }
-
 function renderDash(){
   document.getElementById('dash-month-label').textContent=MONTHS[dashMonth]+' '+dashYear;
   const ym=`${dashYear}-${String(dashMonth+1).padStart(2,'0')}`;
-
-  const doMes = plantoes.filter(p=>p.data_pagamento.slice(0,7)===ym);
-  const aReceber = doMes.filter(p=>!p.recebido);
-  const recebidos = doMes.filter(p=>p.recebido);
-  const totalAReceber = aReceber.reduce((s,p)=>s+Number(p.valor),0);
-  const totalRecebido = recebidos.reduce((s,p)=>s+Number(p.valor),0);
-  const totalMes = totalAReceber+totalRecebido;
-
+  const doMes=plantoes.filter(p=>p.data_pagamento.slice(0,7)===ym);
+  const aReceber=doMes.filter(p=>!p.recebido);
+  const recebidos=doMes.filter(p=>p.recebido);
+  const totalA=aReceber.reduce((s,p)=>s+Number(p.valor),0);
+  const totalR=recebidos.reduce((s,p)=>s+Number(p.valor),0);
   const c=document.getElementById('dash-content');
   c.innerHTML=`
     <div class="card">
       <div class="card-label">Total do Mês</div>
-      <div class="card-value">${fmtMoney(totalMes)}</div>
+      <div class="card-value">${fmtMoney(totalA+totalR)}</div>
       <div class="card-sub">${doMes.length} plantão(ões) com pagamento em ${MONTHS[dashMonth]}</div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
       <div class="card">
         <div class="card-label">A Receber</div>
-        <div class="card-value yellow" style="font-size:22px">${fmtMoney(totalAReceber)}</div>
+        <div class="card-value yellow" style="font-size:22px">${fmtMoney(totalA)}</div>
         <div class="card-sub">${aReceber.length} plantão(ões)</div>
       </div>
       <div class="card">
         <div class="card-label">Recebidos</div>
-        <div class="card-value green" style="font-size:22px">${fmtMoney(totalRecebido)}</div>
+        <div class="card-value green" style="font-size:22px">${fmtMoney(totalR)}</div>
         <div class="card-sub">${recebidos.length} plantão(ões)</div>
       </div>
     </div>
   `;
-
-  if(aReceber.length>0){
-    const t=document.createElement('div');
-    t.className='section-title';
-    t.textContent='⏳ Aguardando Pagamento';
-    c.appendChild(t);
+  if(aReceber.length){
+    const t=document.createElement('div');t.className='section-title';t.textContent='⏳ Aguardando Pagamento';c.appendChild(t);
     aReceber.forEach(p=>c.appendChild(makePlantaoItem(p)));
   }
-
-  if(recebidos.length>0){
-    const t=document.createElement('div');
-    t.className='section-title';
-    t.textContent='✅ Já Recebidos';
-    c.appendChild(t);
+  if(recebidos.length){
+    const t=document.createElement('div');t.className='section-title';t.textContent='✅ Já Recebidos';c.appendChild(t);
     recebidos.forEach(p=>c.appendChild(makePlantaoItem(p)));
   }
-
-  if(doMes.length===0){
-    const e=document.createElement('div');
-    e.className='empty';
-    e.textContent='Nenhum pagamento previsto para este mês';
-    c.appendChild(e);
+  if(!doMes.length){
+    const e=document.createElement('div');e.className='empty';e.textContent='Nenhum pagamento previsto para este mês';c.appendChild(e);
   }
 }
 
@@ -623,7 +619,7 @@ function makePlantaoItem(p){
   el.className='plantao-item';
   const ini=p.data_inicio.slice(0,10).split('-').reverse().join('/');
   const pgto=new Date(p.data_pagamento+'T12:00:00');
-  const hoje=new Date(); hoje.setHours(0,0,0,0);
+  const hoje=new Date();hoje.setHours(0,0,0,0);
   const diff=Math.ceil((pgto-hoje)/(1000*60*60*24));
   let diasLabel='';
   if(!p.recebido){
@@ -631,40 +627,38 @@ function makePlantaoItem(p){
     else if(diff===0) diasLabel='📅 Vence hoje!';
     else diasLabel=`⚠️ Vencido há ${Math.abs(diff)} dia${Math.abs(diff)>1?'s':''}`;
   }
-  const desc = p.descricao ? `<div class="plantao-data" style="color:var(--text2)">${p.descricao}</div>` : '';
+  const desc=p.descricao?`<div class="plantao-data" style="color:var(--text2)">${p.descricao}</div>`:'';
   el.innerHTML=`
     <div class="plantao-info">
       <div class="plantao-cor" style="background:${p.locais?.cor||'#6366f1'}"></div>
-      <div>
+      <div style="min-width:0">
         <div class="plantao-nome">${p.locais?.nome||'Plantão'}</div>
         <div class="plantao-data">${ini}</div>
         ${desc}
-        ${diasLabel?`<div class="plantao-data" style="color:var(--yellow);margin-top:2px">${diasLabel}</div>`:''}
+        ${diasLabel?`<div class="plantao-data" style="color:var(--yellow)">${diasLabel}</div>`:''}
       </div>
     </div>
-    <div style="display:flex;align-items:center">
+    <div style="display:flex;align-items:center;flex-shrink:0">
       <div class="plantao-val">
         <div class="plantao-valor">${fmtMoney(p.valor)}</div>
-        <div class="plantao-status ${p.recebido?'status-rec':'status-pend'}">${p.recebido?'✅ Recebido':'Pendente'}</div>
+        <div class="plantao-data ${p.recebido?'status-rec':'status-pend'}">${p.recebido?'✅ Recebido':'Pendente'}</div>
       </div>
-      <button class="check-btn ${p.recebido?'done':''}" onclick="toggleRecebido('${p.id}',${p.recebido})" title="${p.recebido?'Marcar como pendente':'Confirmar recebimento'}">✓</button>
+      <button class="check-btn ${p.recebido?'done':''}" onclick="toggleRecebido('${p.id}',${p.recebido})">✓</button>
     </div>
   `;
   return el;
 }
 
-async function toggleRecebido(id, atual){
+async function toggleRecebido(id,atual){
   await api('plantoes?id=eq.'+id,'PATCH',{recebido:!atual});
   await loadAll();
   renderDash();
 }
 
-// UTILS
 function fmtMoney(v){return'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2});}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 function closeIfOverlay(e,id){if(e.target.id===id)closeModal(id);}
 
-// INIT
 loadAll();
 </script>
 </body>
