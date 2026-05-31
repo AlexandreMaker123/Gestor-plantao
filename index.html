@@ -25,7 +25,7 @@ nav button svg{width:24px;height:24px}
 .page.active{display:block}
 
 /* CALENDAR PAGE */
-#page-cal{display:flex;flex-direction:column;height:100vh}
+#page-cal{display:flex;flex-direction:column;height:calc(100vh - 80px)}
 .cal-top{padding:16px 16px 8px;flex-shrink:0}
 .cal-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-top:8px}
 .cal-nav h2{font-size:20px;font-weight:700;letter-spacing:-0.3px}
@@ -65,7 +65,7 @@ nav button svg{width:24px;height:24px}
 
 /* DASHBOARD */
 #page-dash{padding:60px 16px 100px}
-.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-top:8px}
+#page-locais{padding:60px 16px 100px};justify-content:space-between;align-items:center;margin-bottom:20px;padding-top:8px}
 .header h1{font-size:28px;font-weight:700;letter-spacing:-0.5px}
 .dash-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
 .dash-nav h2{font-size:20px;font-weight:600}
@@ -318,6 +318,9 @@ function showPage(name,btn){
   if(name==='dash') renderDash();
   if(name==='locais') renderLocais();
 }
+
+// Garante que o calendário só aparece na aba Calendário — as outras pages têm scroll normal
+
 
 // CALENDAR
 function changeMonth(d){
