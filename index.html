@@ -205,6 +205,10 @@ nav button svg{width:24px;height:24px}
           <input type="number" id="inp-valor" placeholder="0,00" step="0.01"/>
         </div>
       </div>
+      <div class="form-group">
+        <label>Descrição / Observação</label>
+        <input type="text" id="inp-descricao" placeholder="Ex: Base 552, escala extra..."/>
+      </div>
     </div>
     <div id="form-evento" style="display:none">
       <div class="form-group">
@@ -270,7 +274,7 @@ nav button svg{width:24px;height:24px}
 <script>
 const SUPA_URL = 'https://pjhelcgrtqspmdecwaji.supabase.co';
 const SUPA_KEY = 'sb_publishable_5Bjh8HaZECZeHPxO-Q98KQ_K2PRvA8q';
-const headers = {'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY};
+const headers = {'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Prefer':'return=representation'};
 
 // STATE
 let curMonth = new Date().getMonth();
@@ -502,7 +506,8 @@ async function saveEvent(){
     const pgto=document.getElementById('inp-pgto').value;
     const valor=parseFloat(document.getElementById('inp-valor').value);
     if(!localId||!ini||!fim||!pgto||isNaN(valor)) return alert('Preencha todos os campos!');
-    const res = await api('plantoes','POST',{local_id:localId,data_inicio:ini,data_fim:fim,data_pagamento:pgto,valor});
+    const descricao = document.getElementById('inp-descricao').value.trim();
+    const res = await api('plantoes','POST',{local_id:localId,data_inicio:ini,data_fim:fim,data_pagamento:pgto,valor,descricao});
     if(res) await loadAll();
   } else {
     const titulo=document.getElementById('inp-evento-titulo').value.trim();
@@ -617,18 +622,30 @@ function makePlantaoItem(p){
   const el=document.createElement('div');
   el.className='plantao-item';
   const ini=p.data_inicio.slice(0,10).split('-').reverse().join('/');
+  const pgto=new Date(p.data_pagamento+'T12:00:00');
+  const hoje=new Date(); hoje.setHours(0,0,0,0);
+  const diff=Math.ceil((pgto-hoje)/(1000*60*60*24));
+  let diasLabel='';
+  if(!p.recebido){
+    if(diff>0) diasLabel=`⏳ Faltam ${diff} dia${diff>1?'s':''}`;
+    else if(diff===0) diasLabel='📅 Vence hoje!';
+    else diasLabel=`⚠️ Vencido há ${Math.abs(diff)} dia${Math.abs(diff)>1?'s':''}`;
+  }
+  const desc = p.descricao ? `<div class="plantao-data" style="color:var(--text2)">${p.descricao}</div>` : '';
   el.innerHTML=`
     <div class="plantao-info">
       <div class="plantao-cor" style="background:${p.locais?.cor||'#6366f1'}"></div>
       <div>
         <div class="plantao-nome">${p.locais?.nome||'Plantão'}</div>
         <div class="plantao-data">${ini}</div>
+        ${desc}
+        ${diasLabel?`<div class="plantao-data" style="color:var(--yellow);margin-top:2px">${diasLabel}</div>`:''}
       </div>
     </div>
     <div style="display:flex;align-items:center">
       <div class="plantao-val">
         <div class="plantao-valor">${fmtMoney(p.valor)}</div>
-        <div class="plantao-status ${p.recebido?'status-rec':'status-pend'}">${p.recebido?'Recebido':'Pendente'}</div>
+        <div class="plantao-status ${p.recebido?'status-rec':'status-pend'}">${p.recebido?'✅ Recebido':'Pendente'}</div>
       </div>
       <button class="check-btn ${p.recebido?'done':''}" onclick="toggleRecebido('${p.id}',${p.recebido})" title="${p.recebido?'Marcar como pendente':'Confirmar recebimento'}">✓</button>
     </div>
