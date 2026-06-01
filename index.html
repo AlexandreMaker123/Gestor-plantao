@@ -643,6 +643,12 @@ function fmtDT(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'
 function fmtD(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 
 async function saveEvent(){
+  const btn=document.querySelector('#overlay-add .btn-primary');
+  if(btn.disabled) return;
+  btn.disabled=true;
+  btn.textContent='Salvando...';
+  btn.style.opacity='0.7';
+  try{
   if(eventType==='plantao'){
     const localId=document.getElementById('sel-local').value;
     const ini=document.getElementById('inp-inicio').value;
@@ -650,7 +656,7 @@ async function saveEvent(){
     const pgto=document.getElementById('inp-pgto').value;
     const valor=parseFloat(document.getElementById('inp-valor').value);
     const descricao=document.getElementById('inp-descricao').value.trim();
-    if(!localId||!ini||!fim||!pgto||isNaN(valor)) return alert('Preencha todos os campos!');
+    if(!localId||!ini||!fim||!pgto||isNaN(valor)){btn.disabled=false;btn.textContent='Salvar';btn.style.opacity='1';return alert('Preencha todos os campos!');}
     if(editingId){
       await api('plantoes?id=eq.'+editingId,'PATCH',{local_id:localId,data_inicio:ini,data_fim:fim,data_pagamento:pgto,valor,descricao});
     } else {
@@ -674,6 +680,9 @@ async function saveEvent(){
   }
   await loadAll();renderPanel();renderDash();
   closeModal('overlay-add');
+  }catch(e){console.error(e);}finally{
+    btn.disabled=false;btn.textContent='Salvar';btn.style.opacity='1';
+  }
 }
 
 function openLocalModal(){document.getElementById('overlay-local').classList.add('open');}
