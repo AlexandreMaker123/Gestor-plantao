@@ -178,7 +178,10 @@ nav button svg{width:24px;height:24px}
 </div>
 
 <div id="page-dash" class="page">
-  <div class="header" style="display:flex;justify-content:space-between;align-items:center"><h1>Dashboard</h1><button class="year-btn" onclick="openYearModal()">📊 2026</button></div>
+  <div class="header" style="display:flex;justify-content:space-between;align-items:center;padding-top:calc(16px + env(safe-area-inset-top));margin-bottom:16px">
+  <h1>Dashboard</h1>
+  <button id="year-btn" style="background:var(--bg3);border:1.5px solid var(--border);color:var(--text2);padding:8px 14px;border-radius:20px;font-size:13px;font-weight:500;cursor:pointer">📊 2026</button>
+</div>
   <div class="dash-nav">
     <button onclick="changeDashMonth(-1)">‹</button>
     <h2 id="dash-month-label"></h2>
@@ -512,7 +515,9 @@ async function doDelete(type,id){
   closeModal('overlay-confirm');
   if(type==='plantao'){await api('plantoes?id=eq.'+id,'DELETE');plantoes=plantoes.filter(p=>p.id!==id);}
   else if(type==='evento'){await api('eventos?id=eq.'+id,'DELETE');eventos=eventos.filter(e=>e.id!==id);}
-  else if(type==='local'){await api('locais?id=eq.'+id,'DELETE');await loadAll();return;}
+  else if(type==='local'){await api('locais?id=eq.'+id,'DELETE');await document.getElementById('year-btn').addEventListener('click', openYearModal);
+
+loadAll();return;}
   renderCalendar();renderPanel();renderDash();
 }
 
