@@ -11,11 +11,10 @@
 (function(){
   const svg=`<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1a1040"/><stop offset="100%" stop-color="#0f172a"/></linearGradient><linearGradient id="ac" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#6366f1"/><stop offset="100%" stop-color="#818cf8"/></linearGradient><linearGradient id="cr" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#a5f3fc"/><stop offset="100%" stop-color="#6366f1"/></linearGradient></defs><rect width="512" height="512" rx="106" fill="url(#bg)"/><rect x="76" y="120" width="360" height="300" rx="28" fill="#2d2b55" stroke="#3d3a6b" stroke-width="1"/><rect x="76" y="120" width="360" height="88" rx="28" fill="url(#ac)"/><rect x="76" y="178" width="360" height="30" fill="url(#ac)"/><rect x="168" y="88" width="22" height="52" rx="11" fill="#4f46e5" stroke="#6366f1" stroke-width="1.5"/><rect x="322" y="88" width="22" height="52" rx="11" fill="#4f46e5" stroke="#6366f1" stroke-width="1.5"/><text x="256" y="172" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="24" font-weight="700" fill="white">PLANT\u00d5ES</text><rect x="94" y="228" width="44" height="38" rx="8" fill="#252340" opacity="0.8"/><rect x="150" y="228" width="44" height="38" rx="8" fill="#6366f1"/><rect x="206" y="228" width="44" height="38" rx="8" fill="#252340" opacity="0.8"/><rect x="262" y="228" width="44" height="38" rx="8" fill="#22c55e" opacity="0.9"/><rect x="318" y="228" width="44" height="38" rx="8" fill="#252340" opacity="0.8"/><rect x="374" y="228" width="44" height="38" rx="8" fill="#252340" opacity="0.8"/><rect x="94" y="278" width="44" height="38" rx="8" fill="#252340" opacity="0.8"/><rect x="150" y="278" width="44" height="38" rx="8" fill="#252340" opacity="0.8"/><rect x="206" y="278" width="44" height="38" rx="8" fill="#f59e0b" opacity="0.9"/><rect x="262" y="278" width="44" height="38" rx="8" fill="#252340" opacity="0.8"/><rect x="318" y="278" width="44" height="38" rx="8" fill="#ec4899" opacity="0.9"/><rect x="374" y="278" width="44" height="38" rx="8" fill="#252340" opacity="0.8"/><rect x="94" y="328" width="44" height="38" rx="8" fill="#252340" opacity="0.8"/><rect x="150" y="328" width="44" height="38" rx="8" fill="#252340" opacity="0.8"/><rect x="206" y="328" width="44" height="38" rx="8" fill="#252340" opacity="0.8"/><rect x="262" y="328" width="44" height="38" rx="8" fill="#6366f1" opacity="0.9"/><rect x="318" y="328" width="44" height="38" rx="8" fill="#252340" opacity="0.8"/><rect x="374" y="328" width="44" height="38" rx="8" fill="#22c55e" opacity="0.8"/><rect x="360" y="360" width="72" height="72" rx="16" fill="#0f172a" opacity="0.95"/><rect x="382" y="372" width="28" height="48" rx="5" fill="url(#cr)"/><rect x="368" y="386" width="56" height="28" rx="5" fill="url(#cr)"/></svg>`;
   const c=document.createElement('canvas');c.width=512;c.height=512;
-  const ctx=c.getContext('2d');
   const img=new Image();
   const blob=new Blob([svg],{type:'image/svg+xml'});
   const url=URL.createObjectURL(blob);
-  img.onload=function(){ctx.drawImage(img,0,0);URL.revokeObjectURL(url);const png=c.toDataURL('image/png');const link=document.createElement('link');link.rel='apple-touch-icon';link.href=png;document.head.appendChild(link);};
+  img.onload=function(){c.getContext('2d').drawImage(img,0,0);URL.revokeObjectURL(url);const png=c.toDataURL('image/png');const l=document.createElement('link');l.rel='apple-touch-icon';l.href=png;document.head.appendChild(l);};
   img.src=url;
 })();
 </script>
@@ -29,20 +28,22 @@
   --border:#2d2d42;--radius:16px;
 }
 body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;height:100vh;overflow:hidden}
-
 nav{display:flex;justify-content:space-around;align-items:center;position:fixed;bottom:0;left:0;right:0;background:rgba(19,19,26,0.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--border);padding:12px 0;padding-bottom:calc(12px + env(safe-area-inset-bottom));z-index:100}
 nav button{background:none;border:none;color:var(--text3);display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;cursor:pointer;transition:color .2s;padding:4px 20px}
 nav button.active{color:var(--accent2)}
 nav button svg{width:24px;height:24px}
-
 .page{display:none;max-width:480px;margin:0 auto}
 .page.active{display:block}
 
+/* CALENDAR */
 #page-cal.active{display:flex;flex-direction:column;height:calc(100vh - 60px - env(safe-area-inset-bottom))}
 .cal-top{padding:16px 16px 8px;flex-shrink:0;padding-top:calc(16px + env(safe-area-inset-top))}
 .cal-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
 .cal-nav h2{font-size:20px;font-weight:700}
-.cal-nav button{background:var(--bg3);border:none;color:var(--text);width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center}
+.cal-nav-btns{display:flex;align-items:center;gap:8px}
+.cal-nav-btns button,.dash-nav-btns button{background:var(--bg3);border:none;color:var(--text);width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center}
+.filter-btn{background:var(--bg3);border:none;color:var(--text2);height:32px;padding:0 12px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:500;display:flex;align-items:center;gap:6px;transition:all .2s}
+.filter-btn.filtered{background:rgba(99,102,241,0.15);border:1.5px solid var(--accent);color:var(--accent2)}
 .weekdays{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;margin-bottom:4px}
 .weekdays span{font-size:11px;color:var(--text3);font-weight:600;padding:4px 0}
 .days{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
@@ -54,12 +55,10 @@ nav button svg{width:24px;height:24px}
 .day-num{font-size:14px;font-weight:500;width:26px;height:26px;display:flex;align-items:center;justify-content:center}
 .day-dots{display:flex;gap:2px;flex-wrap:wrap;justify-content:center;margin-top:2px;max-width:36px}
 .dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
-
 .day-panel{flex:1;overflow-y:auto;background:var(--bg2);border-top:1px solid var(--border);padding:14px 16px}
 .day-panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
 .day-panel-header h3{font-size:15px;font-weight:600}
 .add-btn{background:var(--accent);border:none;color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center}
-
 .event-card{display:flex;align-items:center;gap:10px;padding:11px 12px;background:var(--bg3);border-radius:12px;margin-bottom:8px}
 .event-bar{width:4px;height:38px;border-radius:2px;flex-shrink:0}
 .event-info{flex:1;min-width:0}
@@ -75,19 +74,13 @@ nav button svg{width:24px;height:24px}
 .event-btn{background:none;border:none;cursor:pointer;font-size:15px;padding:4px;color:var(--text3)}
 .empty-day{text-align:center;color:var(--text3);padding:28px 0;font-size:14px}
 
+/* DASHBOARD */
 #page-dash{padding:0 16px 100px;overflow-y:auto;height:calc(100vh - 60px - env(safe-area-inset-bottom))}
 #page-dash .header{padding-top:calc(16px + env(safe-area-inset-top));margin-bottom:16px}
 .header h1{font-size:28px;font-weight:700;letter-spacing:-0.5px}
 .dash-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
 .dash-nav h2{font-size:20px;font-weight:600}
-.dash-nav button{background:var(--bg3);border:none;color:var(--text);width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center}
-
-/* FILTRO */
-.filter-bar{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:16px;scrollbar-width:none}
-.filter-bar::-webkit-scrollbar{display:none}
-.filter-chip{background:var(--bg3);border:1.5px solid var(--border);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;white-space:nowrap;transition:all .2s;flex-shrink:0}
-.filter-chip.active{background:rgba(99,102,241,0.15);border-color:var(--accent);color:var(--accent2)}
-
+.dash-nav-btns{display:flex;align-items:center;gap:8px}
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:14px}
 .card-label{font-size:12px;color:var(--text2);font-weight:500;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
 .card-value{font-size:30px;font-weight:700;letter-spacing:-1px}
@@ -107,6 +100,7 @@ nav button svg{width:24px;height:24px}
 .section-title{font-size:13px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin:18px 0 10px}
 .empty{text-align:center;color:var(--text3);padding:32px 0;font-size:14px}
 
+/* LOCAIS */
 #page-locais{padding:0 16px 100px;overflow-y:auto;height:calc(100vh - 60px - env(safe-area-inset-bottom))}
 #page-locais .header{padding-top:calc(16px + env(safe-area-inset-top));margin-bottom:16px}
 .local-item{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border-radius:12px;margin-bottom:8px}
@@ -114,6 +108,7 @@ nav button svg{width:24px;height:24px}
 .local-name{flex:1;font-size:15px}
 .local-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;padding:4px}
 
+/* MODAIS */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:200;align-items:flex-end}
 .overlay.open{display:flex}
 .modal{background:var(--bg2);border-radius:24px 24px 0 0;padding:24px;padding-bottom:calc(24px + env(safe-area-inset-bottom));width:100%;max-height:90vh;overflow-y:auto;animation:slideUp .3s ease}
@@ -135,6 +130,7 @@ nav button svg{width:24px;height:24px}
 .btn{width:100%;padding:15px;border-radius:14px;border:none;font-size:16px;font-weight:600;cursor:pointer;transition:all .2s;margin-top:8px}
 .btn-primary{background:var(--accent);color:#fff}
 .btn-close{background:var(--bg3);color:var(--text2)}
+.btn-danger{background:rgba(239,68,68,0.15);color:var(--red);border:none;width:100%;padding:15px;border-radius:14px;font-size:16px;font-weight:600;cursor:pointer;margin-bottom:8px}
 
 /* RECORRENTE */
 .recur-toggle{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg3);border-radius:12px;margin-bottom:14px;cursor:pointer}
@@ -144,11 +140,17 @@ nav button svg{width:24px;height:24px}
 .toggle::after{content:'';position:absolute;width:20px;height:20px;background:#fff;border-radius:50%;top:2px;left:2px;transition:transform .2s}
 .toggle.on::after{transform:translateX(20px)}
 
-/* CONFIRM MODAL */
+/* FILTRO MODAL */
+.filter-option{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg3);border-radius:12px;margin-bottom:8px;cursor:pointer;transition:all .2s}
+.filter-option.selected{background:rgba(99,102,241,0.15);border:1.5px solid var(--accent)}
+.filter-option-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.filter-option-name{flex:1;font-size:15px}
+.filter-check{font-size:16px;color:var(--accent2)}
+
+/* CONFIRM */
 .confirm-box{background:var(--bg2);border-radius:24px 24px 0 0;padding:28px 24px;padding-bottom:calc(28px + env(safe-area-inset-bottom));width:100%;animation:slideUp .3s ease}
 .confirm-title{font-size:18px;font-weight:600;margin-bottom:8px;text-align:center}
 .confirm-sub{font-size:14px;color:var(--text2);text-align:center;margin-bottom:24px}
-.btn-danger{background:rgba(239,68,68,0.15);color:var(--red);border:none;width:100%;padding:15px;border-radius:14px;font-size:16px;font-weight:600;cursor:pointer;margin-bottom:8px}
 </style>
 </head>
 <body>
@@ -158,7 +160,10 @@ nav button svg{width:24px;height:24px}
     <div class="cal-nav">
       <button onclick="changeMonth(-1)">‹</button>
       <h2 id="month-label"></h2>
-      <button onclick="changeMonth(1)">›</button>
+      <div class="cal-nav-btns">
+        <button class="filter-btn" id="cal-filter-btn" onclick="openFilterModal('cal')">⚙️ Filtro</button>
+        <button onclick="changeMonth(1)">›</button>
+      </div>
     </div>
     <div class="weekdays"><span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span></div>
     <div class="days" id="days-grid"></div>
@@ -177,9 +182,11 @@ nav button svg{width:24px;height:24px}
   <div class="dash-nav">
     <button onclick="changeDashMonth(-1)">‹</button>
     <h2 id="dash-month-label"></h2>
-    <button onclick="changeDashMonth(1)">›</button>
+    <div class="dash-nav-btns">
+      <button class="filter-btn" id="dash-filter-btn" onclick="openFilterModal('dash')">⚙️ Filtro</button>
+      <button onclick="changeDashMonth(1)">›</button>
+    </div>
   </div>
-  <div class="filter-bar" id="filter-bar"></div>
   <div id="dash-content"></div>
 </div>
 
@@ -204,6 +211,16 @@ nav button svg{width:24px;height:24px}
   </button>
 </nav>
 
+<!-- MODAL FILTRO -->
+<div class="overlay" id="overlay-filter" onclick="closeIfOverlay(event,'overlay-filter')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3>Filtrar por Local</h3>
+    <div id="filter-options-list"></div>
+    <button class="btn btn-close" onclick="closeModal('overlay-filter')" style="margin-top:4px">Fechar</button>
+  </div>
+</div>
+
 <!-- MODAL ADICIONAR/EDITAR -->
 <div class="overlay" id="overlay-add" onclick="closeIfOverlay(event,'overlay-add')">
   <div class="modal">
@@ -224,14 +241,24 @@ nav button svg{width:24px;height:24px}
         <div class="form-group"><label>Valor (R$)</label><input type="number" id="inp-valor" placeholder="0,00" step="0.01"/></div>
       </div>
       <div class="form-group"><label>Descrição / Observação</label><input type="text" id="inp-descricao" placeholder="Ex: Base 552, escala extra..."/></div>
-      <!-- RECORRENTE -->
       <div class="recur-toggle" id="recur-toggle" onclick="toggleRecur()">
         <span class="recur-label">🔁 Plantão recorrente</span>
         <div class="toggle" id="recur-switch"></div>
       </div>
       <div id="recur-options" style="display:none">
         <div class="form-group">
-          <label>Repetir por quantos meses?</label>
+          <label>Frequência</label>
+          <select id="inp-recur-freq">
+            <option value="semanal">Semanal (todo X-feira)</option>
+            <option value="quinzenal">Quinzenal (a cada 15 dias)</option>
+            <option value="mensal1">Mensal — 1ª semana do mês</option>
+            <option value="mensal2">Mensal — 2ª semana do mês</option>
+            <option value="mensal3">Mensal — 3ª semana do mês</option>
+            <option value="mensal4">Mensal — 4ª semana do mês</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Por quantos meses?</label>
           <select id="inp-recur-meses">
             <option value="2">2 meses</option>
             <option value="3">3 meses</option>
@@ -297,7 +324,7 @@ nav button svg{width:24px;height:24px}
   <div class="confirm-box">
     <div class="modal-handle"></div>
     <div class="confirm-title">Excluir?</div>
-    <div class="confirm-sub" id="confirm-msg">Tem certeza que deseja excluir?</div>
+    <div class="confirm-sub" id="confirm-msg"></div>
     <button class="btn-danger" id="confirm-yes">Sim, excluir</button>
     <button class="btn btn-close" onclick="closeModal('overlay-confirm')">Cancelar</button>
   </div>
@@ -313,7 +340,8 @@ let dashMonth=new Date().getMonth(),dashYear=new Date().getFullYear();
 let selectedDate=null,eventType='plantao',localColor='#6366f1',eventoColor='#6366f1';
 let locais=[],plantoes=[],eventos=[];
 let editingId=null,recurOn=false;
-let dashFilter='todos';
+let calFilter='todos',dashFilter='todos';
+let activeFilterCtx='cal';
 
 const MONTHS=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 
@@ -332,7 +360,6 @@ async function loadAll(){
   eventos=await api('eventos?select=*&order=data')||[];
   renderCalendar();
   renderLocais();
-  renderFilterBar();
   if(selectedDate) renderPanel();
 }
 
@@ -341,23 +368,35 @@ function showPage(name,btn){
   document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
   btn.classList.add('active');
-  if(name==='dash'){renderFilterBar();renderDash();}
+  if(name==='dash') renderDash();
   if(name==='locais') renderLocais();
 }
 
-// FILTER BAR
-function renderFilterBar(){
-  const bar=document.getElementById('filter-bar');
-  bar.innerHTML='';
-  const chips=[{id:'todos',label:'Todos'},...locais.map(l=>({id:l.id,label:l.nome,cor:l.cor}))];
-  chips.forEach(ch=>{
+// FILTER MODAL
+function openFilterModal(ctx){
+  activeFilterCtx=ctx;
+  const curFilter=ctx==='cal'?calFilter:dashFilter;
+  const list=document.getElementById('filter-options-list');
+  list.innerHTML='';
+  const opts=[{id:'todos',label:'Todos os locais',cor:'#6366f1'},...locais.map(l=>({id:l.id,label:l.nome,cor:l.cor}))];
+  opts.forEach(opt=>{
     const el=document.createElement('div');
-    el.className='filter-chip'+(dashFilter===ch.id?' active':'');
-    if(ch.cor&&dashFilter===ch.id) el.style.borderColor=ch.cor;
-    el.textContent=ch.label;
-    el.onclick=()=>{dashFilter=ch.id;renderFilterBar();renderDash();};
-    bar.appendChild(el);
+    el.className='filter-option'+(curFilter===opt.id?' selected':'');
+    el.innerHTML=`<div class="filter-option-dot" style="background:${opt.cor}"></div><span class="filter-option-name">${opt.label}</span>${curFilter===opt.id?'<span class="filter-check">✓</span>':''}`;
+    el.onclick=()=>{
+      if(ctx==='cal'){calFilter=opt.id;updateFilterBtn('cal-filter-btn',opt.id,opt.label);renderCalendar();if(selectedDate)renderPanel();}
+      else{dashFilter=opt.id;updateFilterBtn('dash-filter-btn',opt.id,opt.label);renderDash();}
+      closeModal('overlay-filter');
+    };
+    list.appendChild(el);
   });
+  document.getElementById('overlay-filter').classList.add('open');
+}
+
+function updateFilterBtn(btnId,filterId,label){
+  const btn=document.getElementById(btnId);
+  if(filterId==='todos'){btn.textContent='⚙️ Filtro';btn.classList.remove('filtered');}
+  else{btn.textContent='● '+label;btn.classList.add('filtered');}
 }
 
 // CALENDAR
@@ -391,8 +430,10 @@ function makeDay(d,m,y,other,isToday,isSel){
   const numEl=document.createElement('div');numEl.className='day-num';numEl.textContent=d;el.appendChild(numEl);
   const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
   const dots=document.createElement('div');dots.className='day-dots';
-  plantoes.forEach(p=>{if(ds>=p.data_inicio.slice(0,10)&&ds<=p.data_fim.slice(0,10)){const dot=document.createElement('div');dot.className='dot';dot.style.background=p.locais?.cor||'#6366f1';dots.appendChild(dot);}});
-  eventos.forEach(e=>{if(e.data===ds){const dot=document.createElement('div');dot.className='dot';dot.style.background=e.cor||'#6366f1';dots.appendChild(dot);}});
+  let dayP=plantoes.filter(p=>ds>=p.data_inicio.slice(0,10)&&ds<=p.data_fim.slice(0,10));
+  if(calFilter!=='todos') dayP=dayP.filter(p=>p.local_id===calFilter);
+  dayP.forEach(p=>{const dot=document.createElement('div');dot.className='dot';dot.style.background=p.locais?.cor||'#6366f1';dots.appendChild(dot);});
+  if(calFilter==='todos') eventos.forEach(e=>{if(e.data===ds){const dot=document.createElement('div');dot.className='dot';dot.style.background=e.cor||'#6366f1';dots.appendChild(dot);}});
   el.appendChild(dots);
   if(!other) el.onclick=()=>selectDay(d,m,y);
   return el;
@@ -409,8 +450,9 @@ function renderPanel(){
   const dows=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
   lbl.textContent=`${dows[new Date(y,m,d).getDay()]}, ${String(d).padStart(2,'0')}/${String(m+1).padStart(2,'0')}/${y}`;
   panel.innerHTML='';
-  const dayP=plantoes.filter(p=>ds>=p.data_inicio.slice(0,10)&&ds<=p.data_fim.slice(0,10));
-  const dayE=eventos.filter(e=>e.data===ds);
+  let dayP=plantoes.filter(p=>ds>=p.data_inicio.slice(0,10)&&ds<=p.data_fim.slice(0,10));
+  if(calFilter!=='todos') dayP=dayP.filter(p=>p.local_id===calFilter);
+  const dayE=calFilter==='todos'?eventos.filter(e=>e.data===ds):[];
   if(!dayP.length&&!dayE.length){panel.innerHTML='<div class="empty-day">Nenhum compromisso neste dia</div>';return;}
   dayP.forEach(p=>{
     const el=document.createElement('div');el.className='event-card';
@@ -447,16 +489,11 @@ function confirmDelete(type,id,nome){
   document.getElementById('confirm-yes').onclick=()=>doDelete(type,id);
   document.getElementById('overlay-confirm').classList.add('open');
 }
-
 async function doDelete(type,id){
   closeModal('overlay-confirm');
-  if(type==='plantao'){
-    await api('plantoes?id=eq.'+id,'DELETE');
-    plantoes=plantoes.filter(p=>p.id!==id);
-  } else {
-    await api('eventos?id=eq.'+id,'DELETE');
-    eventos=eventos.filter(e=>e.id!==id);
-  }
+  if(type==='plantao'){await api('plantoes?id=eq.'+id,'DELETE');plantoes=plantoes.filter(p=>p.id!==id);}
+  else if(type==='evento'){await api('eventos?id=eq.'+id,'DELETE');eventos=eventos.filter(e=>e.id!==id);}
+  else if(type==='local'){await api('locais?id=eq.'+id,'DELETE');await loadAll();return;}
   renderCalendar();renderPanel();renderDash();
 }
 
@@ -528,6 +565,64 @@ function setType(t){
 function selectLocalColor(el){document.querySelectorAll('#local-colors .color-opt').forEach(e=>e.classList.remove('selected'));el.classList.add('selected');localColor=el.dataset.color;}
 function selectEventoColor(el){document.querySelectorAll('#evento-colors .color-opt').forEach(e=>e.classList.remove('selected'));el.classList.add('selected');eventoColor=el.dataset.color;}
 
+// GERAR DATAS RECORRENTES
+function gerarDatasRecorrentes(iniStr,fimStr,pgtoStr,freq,meses){
+  const datas=[];
+  const iniBase=new Date(iniStr);
+  const fimBase=new Date(fimStr);
+  const pgtoBase=new Date(pgtoStr+'T12:00:00');
+  const diffMs=fimBase-iniBase;
+  const diffPgto=pgtoBase-iniBase;
+  const dow=iniBase.getDay(); // dia da semana original
+
+  if(freq==='semanal'){
+    let cur=new Date(iniBase);
+    cur.setDate(cur.getDate()+7);
+    const end=new Date(iniBase);end.setMonth(end.getMonth()+meses);
+    while(cur<end){
+      const ini=new Date(cur);
+      const fim=new Date(cur.getTime()+diffMs);
+      const pgto=new Date(cur.getTime()+diffPgto);
+      datas.push({ini,fim,pgto});
+      cur.setDate(cur.getDate()+7);
+    }
+  } else if(freq==='quinzenal'){
+    let cur=new Date(iniBase);
+    cur.setDate(cur.getDate()+15);
+    const end=new Date(iniBase);end.setMonth(end.getMonth()+meses);
+    while(cur<end){
+      const ini=new Date(cur);
+      const fim=new Date(cur.getTime()+diffMs);
+      const pgto=new Date(cur.getTime()+diffPgto);
+      datas.push({ini,fim,pgto});
+      cur.setDate(cur.getDate()+15);
+    }
+  } else {
+    // mensal1,2,3,4
+    const semana=parseInt(freq.replace('mensal',''));
+    for(let i=1;i<=meses;i++){
+      const targetMonth=new Date(iniBase);
+      targetMonth.setMonth(targetMonth.getMonth()+i);
+      // achar o N-ésimo dia da semana naquele mês
+      const firstDay=new Date(targetMonth.getFullYear(),targetMonth.getMonth(),1);
+      let count=0,day=1;
+      while(count<semana){
+        const dt=new Date(targetMonth.getFullYear(),targetMonth.getMonth(),day);
+        if(dt.getDay()===dow) count++;
+        if(count<semana) day++;
+      }
+      const ini=new Date(targetMonth.getFullYear(),targetMonth.getMonth(),day,iniBase.getHours(),iniBase.getMinutes());
+      const fim=new Date(ini.getTime()+diffMs);
+      const pgto=new Date(ini.getTime()+diffPgto);
+      datas.push({ini,fim,pgto});
+    }
+  }
+  return datas;
+}
+
+function fmtDT(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+'T'+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
+function fmtD(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+
 async function saveEvent(){
   if(eventType==='plantao'){
     const localId=document.getElementById('sel-local').value;
@@ -541,13 +636,12 @@ async function saveEvent(){
       await api('plantoes?id=eq.'+editingId,'PATCH',{local_id:localId,data_inicio:ini,data_fim:fim,data_pagamento:pgto,valor,descricao});
     } else {
       await api('plantoes','POST',{local_id:localId,data_inicio:ini,data_fim:fim,data_pagamento:pgto,valor,descricao});
-      // RECORRENTE
       if(recurOn){
+        const freq=document.getElementById('inp-recur-freq').value;
         const meses=parseInt(document.getElementById('inp-recur-meses').value);
-        for(let i=1;i<meses;i++){
-          const addMs=(d,m)=>{const dt=new Date(d);dt.setMonth(dt.getMonth()+m);return dt.toISOString().slice(0,16);}
-          const addMsDate=(d,m)=>{const dt=new Date(d+'T12:00:00');dt.setMonth(dt.getMonth()+m);return dt.toISOString().slice(0,10);}
-          await api('plantoes','POST',{local_id:localId,data_inicio:addMs(ini,i),data_fim:addMs(fim,i),data_pagamento:addMsDate(pgto,i),valor,descricao});
+        const extras=gerarDatasRecorrentes(ini,fim,pgto,freq,meses);
+        for(const e of extras){
+          await api('plantoes','POST',{local_id:localId,data_inicio:fmtDT(e.ini),data_fim:fmtDT(e.fim),data_pagamento:fmtD(e.pgto),valor,descricao});
         }
       }
     }
@@ -579,9 +673,6 @@ function renderLocais(){
     el.innerHTML=`<div class="local-dot" style="background:${l.cor}"></div><span class="local-name">${l.nome}</span><button class="local-del" onclick="confirmDelete('local','${l.id}','${l.nome}')">🗑</button>`;
     list.appendChild(el);
   });
-}
-async function doDeleteLocal(id){
-  await api('locais?id=eq.'+id,'DELETE');await loadAll();
 }
 
 function changeDashMonth(d){
@@ -661,25 +752,8 @@ async function toggleRecebido(id,atual){
 }
 
 function fmtMoney(v){return'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2});}
-function closeModal(id){
-  document.getElementById(id).classList.remove('open');
-  editingId=null;recurOn=false;
-}
+function closeModal(id){document.getElementById(id).classList.remove('open');editingId=null;recurOn=false;}
 function closeIfOverlay(e,id){if(e.target.id===id)closeModal(id);}
-
-// Fix confirm delete para locais
-const origConfirm=window.confirmDelete;
-window.confirmDelete=function(type,id,nome){
-  if(type==='local'){
-    document.getElementById('confirm-msg').textContent=`Deseja excluir o local "${nome}"?`;
-    document.getElementById('confirm-yes').onclick=()=>{closeModal('overlay-confirm');doDeleteLocal(id);};
-    document.getElementById('overlay-confirm').classList.add('open');
-  } else {
-    document.getElementById('confirm-msg').textContent=`Deseja excluir "${nome}"? Esta ação não pode ser desfeita.`;
-    document.getElementById('confirm-yes').onclick=()=>doDelete(type,id);
-    document.getElementById('overlay-confirm').classList.add('open');
-  }
-};
 
 loadAll();
 </script>
