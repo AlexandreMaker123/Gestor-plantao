@@ -281,6 +281,17 @@ nav button svg{width:24px;height:24px}
             <option value="12">12 meses</option>
           </select>
         </div>
+        <div class="form-group">
+          <label>Pagamento dos recorrentes</label>
+          <select id="inp-recur-pgto-tipo" onchange="toggleRecurPgto()">
+            <option value="fixo">Mesma data para todos do mês</option>
+            <option value="auto">Calcular automaticamente</option>
+          </select>
+        </div>
+        <div id="recur-pgto-fixo-wrap" class="form-group">
+          <label>Data base de pagamento</label>
+          <input type="date" id="inp-recur-pgto-base"/>
+        </div>
       </div>
     </div>
     <div id="form-evento" style="display:none">
@@ -337,8 +348,25 @@ nav button svg{width:24px;height:24px}
 <div class="overlay" id="overlay-confirm">
   <div class="confirm-box">
     <div class="modal-handle"></div>
-    <div class="confirm-title">Excluir?</div>
+    <div class="confirm-title" id="confirm-title">Excluir?</div>
     <div class="confirm-sub" id="confirm-msg"></div>
+    <div id="confirm-recur-opts" style="display:none;margin-bottom:16px">
+      <div class="filter-option" id="copt-este" onclick="selectConfirmOpt('este')">
+        <span style="font-size:20px">1️⃣</span>
+        <div style="flex:1"><div style="font-size:14px;font-weight:600">Só este plantão</div><div style="font-size:12px;color:var(--text3)">Remove apenas este dia</div></div>
+        <span id="copt-este-check" style="color:var(--accent2);display:none">✓</span>
+      </div>
+      <div class="filter-option" id="copt-futuros" onclick="selectConfirmOpt('futuros')">
+        <span style="font-size:20px">⏭️</span>
+        <div style="flex:1"><div style="font-size:14px;font-weight:600">Este e os futuros</div><div style="font-size:12px;color:var(--text3)">Remove este e todos os próximos da série</div></div>
+        <span id="copt-futuros-check" style="color:var(--accent2);display:none">✓</span>
+      </div>
+      <div class="filter-option" id="copt-todos" onclick="selectConfirmOpt('todos')">
+        <span style="font-size:20px">🗑️</span>
+        <div style="flex:1"><div style="font-size:14px;font-weight:600">Toda a série</div><div style="font-size:12px;color:var(--text3)">Remove todos os plantões desta série</div></div>
+        <span id="copt-todos-check" style="color:var(--accent2);display:none">✓</span>
+      </div>
+    </div>
     <button class="btn-danger" id="confirm-yes">Sim, excluir</button>
     <button class="btn btn-close" onclick="closeModal('overlay-confirm')">Cancelar</button>
   </div>
@@ -553,17 +581,55 @@ function renderPanel(){
   });
 }
 
+function toggleRecurPgto(){
+  const tipo=document.getElementById('inp-recur-pgto-tipo').value;
+  document.getElementById('recur-pgto-fixo-wrap').style.display=tipo==='fixo'?'block':'none';
+}
+
+let confirmRecurOpt='este';
+function selectConfirmOpt(opt){
+  confirmRecurOpt=opt;
+  ['este','futuros','todos'].forEach(o=>{
+    document.getElementById('copt-'+o).classList.toggle('selected',o===opt);
+    document.getElementById('copt-'+o+'-check').style.display=o===opt?'inline':'none';
+  });
+}
+
 function confirmDelete(type,id,nome){
-  document.getElementById('confirm-msg').textContent=`Deseja excluir "${nome}"? Esta ação não pode ser desfeita.`;
-  document.getElementById('confirm-yes').onclick=()=>doDelete(type,id);
+  const p=type==='plantao'?plantoes.find(x=>x.id===id):null;
+  const temSerie=p&&p.recorrente_id;
+  document.getElementById('confirm-title').textContent='Excluir?';
+  document.getElementById('confirm-msg').textContent=`"${nome}"`;
+  document.getElementById('confirm-recur-opts').style.display=temSerie?'block':'none';
+  if(temSerie){confirmRecurOpt='este';selectConfirmOpt('este');}
+  document.getElementById('confirm-yes').onclick=()=>doDelete(type,id,p);
   document.getElementById('overlay-confirm').classList.add('open');
 }
 
-async function doDelete(type,id){
+async function doDelete(type,id,p){
   closeModal('overlay-confirm');
-  if(type==='plantao'){await api('plantoes?id=eq.'+id,'DELETE');plantoes=plantoes.filter(p=>p.id!==id);}
-  else if(type==='evento'){await api('eventos?id=eq.'+id,'DELETE');eventos=eventos.filter(e=>e.id!==id);}
-  else if(type==='local'){await api('locais?id=eq.'+id,'DELETE');await loadAll();return;}
+  if(type==='plantao'){
+    if(p&&p.recorrente_id&&confirmRecurOpt!=='este'){
+      if(confirmRecurOpt==='todos'){
+        await api('plantoes?recorrente_id=eq.'+p.recorrente_id,'DELETE');
+        plantoes=plantoes.filter(x=>x.recorrente_id!==p.recorrente_id);
+      } else {
+        // futuros: excluir este e todos com data_inicio >= este
+        const dataBase=p.data_inicio.slice(0,10);
+        const ids=plantoes.filter(x=>x.recorrente_id===p.recorrente_id&&x.data_inicio.slice(0,10)>=dataBase).map(x=>x.id);
+        for(const xid of ids) await api('plantoes?id=eq.'+xid,'DELETE');
+        plantoes=plantoes.filter(x=>!ids.includes(x.id));
+      }
+    } else {
+      await api('plantoes?id=eq.'+id,'DELETE');
+      plantoes=plantoes.filter(x=>x.id!==id);
+    }
+  } else if(type==='evento'){
+    await api('eventos?id=eq.'+id,'DELETE');
+    eventos=eventos.filter(e=>e.id!==id);
+  } else if(type==='local'){
+    await api('locais?id=eq.'+id,'DELETE');await loadAll();return;
+  }
   renderCalendar();renderPanel();renderDash();
 }
 
@@ -692,8 +758,29 @@ async function saveEvent(){
         if(recurOn){
           const freq=document.getElementById('inp-recur-freq').value;
           const meses=parseInt(document.getElementById('inp-recur-meses').value);
+          const pgtoTipo=document.getElementById('inp-recur-pgto-tipo').value;
+          const pgtoBase=document.getElementById('inp-recur-pgto-base').value;
           const extras=gerarDatasRecorrentes(ini,fim,pgto,freq,meses);
-          for(const e of extras) await api('plantoes','POST',{local_id:localId,data_inicio:fmtDT(e.ini),data_fim:fmtDT(e.fim),data_pagamento:fmtD(e.pgto),valor,descricao});
+          // gera um ID de série para agrupar todos
+          const serieId=crypto.randomUUID();
+          // atualiza o primeiro plantão com o serieId
+          const primeiros=await api('plantoes?local_id=eq.'+localId+'&data_inicio=eq.'+encodeURIComponent(ini),'GET');
+          if(primeiros&&primeiros.length) await api('plantoes?id=eq.'+primeiros[primeiros.length-1].id,'PATCH',{recorrente_id:serieId});
+          for(const e of extras){
+            let dataPgto;
+            if(pgtoTipo==='fixo'&&pgtoBase){
+              // avança a data base pelo número de meses do plantão em relação ao primeiro
+              const mesPlantao=e.ini.getMonth()+(e.ini.getFullYear()-new Date(ini).getFullYear())*12;
+              const mesPrimeiro=new Date(ini).getMonth();
+              const diff=mesPlantao-mesPrimeiro;
+              const baseDate=new Date(pgtoBase+'T12:00:00');
+              baseDate.setMonth(baseDate.getMonth()+diff);
+              dataPgto=fmtD(baseDate);
+            } else {
+              dataPgto=fmtD(e.pgto);
+            }
+            await api('plantoes','POST',{local_id:localId,data_inicio:fmtDT(e.ini),data_fim:fmtDT(e.fim),data_pagamento:dataPgto,valor,descricao,recorrente_id:serieId});
+          }
         }
       }
     } else {
