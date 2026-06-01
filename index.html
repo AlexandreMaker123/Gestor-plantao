@@ -588,14 +588,14 @@ function gerarDatasRecorrentes(iniStr,fimStr,pgtoStr,freq,meses){
     }
   } else if(freq==='quinzenal'){
     let cur=new Date(iniBase);
-    cur.setDate(cur.getDate()+15);
+    cur.setDate(cur.getDate()+14);
     const end=new Date(iniBase);end.setMonth(end.getMonth()+meses);
     while(cur<end){
       const ini=new Date(cur);
       const fim=new Date(cur.getTime()+diffMs);
       const pgto=new Date(cur.getTime()+diffPgto);
       datas.push({ini,fim,pgto});
-      cur.setDate(cur.getDate()+15);
+      cur.setDate(cur.getDate()+14);
     }
   } else {
     // mensal1,2,3,4
