@@ -178,7 +178,7 @@ nav button svg{width:24px;height:24px}
 </div>
 
 <div id="page-dash" class="page">
-  <div class="header"><h1>Dashboard</h1></div>
+  <div class="header" style="display:flex;justify-content:space-between;align-items:center"><h1>Dashboard</h1><button class="year-btn" onclick="openYearModal()">📊 2026</button></div>
   <div class="dash-nav">
     <button onclick="changeDashMonth(-1)">‹</button>
     <h2 id="dash-month-label"></h2>
@@ -316,6 +316,25 @@ nav button svg{width:24px;height:24px}
     </div>
     <button class="btn btn-primary" onclick="saveLocal()">Salvar Local</button>
     <button class="btn btn-close" onclick="closeModal('overlay-local')" style="margin-top:8px">Cancelar</button>
+  </div>
+</div>
+
+<!-- MODAL RESUMO ANUAL -->
+<div class="overlay" id="overlay-year" onclick="closeIfOverlay(event,'overlay-year')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="year-nav">
+      <button onclick="changeYearView(-1)">‹</button>
+      <h3 id="year-label">2026</h3>
+      <button onclick="changeYearView(1)">›</button>
+    </div>
+    <div class="year-total-card">
+      <div class="year-total-label">Total Previsto do Ano</div>
+      <div class="year-total-value" id="year-total-value">R$ 0,00</div>
+      <div style="font-size:12px;color:var(--green);margin-top:4px" id="year-rec-value"></div>
+    </div>
+    <div id="year-months"></div>
+    <button class="btn btn-close" onclick="closeModal('overlay-year')">Fechar</button>
   </div>
 </div>
 
