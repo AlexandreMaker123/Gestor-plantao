@@ -21,12 +21,7 @@
 <title>Gestor de Plantões</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-:root{
-  --bg:#0a0a0f;--bg2:#13131a;--bg3:#1c1c28;--bg4:#252535;
-  --accent:#6366f1;--accent2:#818cf8;--green:#22c55e;--red:#ef4444;
-  --yellow:#f59e0b;--text:#f1f5f9;--text2:#94a3b8;--text3:#475569;
-  --border:#2d2d42;--radius:16px;
-}
+:root{--bg:#0a0a0f;--bg2:#13131a;--bg3:#1c1c28;--bg4:#252535;--accent:#6366f1;--accent2:#818cf8;--green:#22c55e;--red:#ef4444;--yellow:#f59e0b;--text:#f1f5f9;--text2:#94a3b8;--text3:#475569;--border:#2d2d42;--radius:16px}
 body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;height:100vh;overflow:hidden}
 nav{display:flex;justify-content:space-around;align-items:center;position:fixed;bottom:0;left:0;right:0;background:rgba(19,19,26,0.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--border);padding:12px 0;padding-bottom:calc(12px + env(safe-area-inset-bottom));z-index:100}
 nav button{background:none;border:none;color:var(--text3);display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;cursor:pointer;transition:color .2s;padding:4px 20px}
@@ -34,16 +29,14 @@ nav button.active{color:var(--accent2)}
 nav button svg{width:24px;height:24px}
 .page{display:none;max-width:480px;margin:0 auto}
 .page.active{display:block}
-
-/* CALENDAR */
 #page-cal.active{display:flex;flex-direction:column;height:calc(100vh - 60px - env(safe-area-inset-bottom))}
-.cal-top{padding:16px 16px 8px;flex-shrink:0;padding-top:calc(16px + env(safe-area-inset-top))}
+.cal-top{padding:calc(16px + env(safe-area-inset-top)) 16px 8px;flex-shrink:0}
 .cal-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
 .cal-nav h2{font-size:20px;font-weight:700}
 .cal-nav-btns{display:flex;align-items:center;gap:8px}
-.cal-nav-btns button,.dash-nav-btns button{background:var(--bg3);border:none;color:var(--text);width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center}
-.filter-btn{background:var(--bg3);border:none;color:var(--text2);height:32px;padding:0 12px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:500;display:flex;align-items:center;gap:6px;transition:all .2s}
-.filter-btn.filtered{background:rgba(99,102,241,0.15);border:1.5px solid var(--accent);color:var(--accent2)}
+.cal-nav-btns button{background:var(--bg3);border:none;color:var(--text);width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center}
+.filter-btn{background:var(--bg3);border:1.5px solid var(--border);color:var(--text2);height:32px;padding:0 12px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:500;display:flex;align-items:center;gap:6px;transition:all .2s;white-space:nowrap}
+.filter-btn.filtered{background:rgba(99,102,241,0.15);border-color:var(--accent);color:var(--accent2)}
 .weekdays{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;margin-bottom:4px}
 .weekdays span{font-size:11px;color:var(--text3);font-weight:600;padding:4px 0}
 .days{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
@@ -73,14 +66,13 @@ nav button svg{width:24px;height:24px}
 .event-actions{display:flex;gap:2px;margin-left:4px}
 .event-btn{background:none;border:none;cursor:pointer;font-size:15px;padding:4px;color:var(--text3)}
 .empty-day{text-align:center;color:var(--text3);padding:28px 0;font-size:14px}
-
-/* DASHBOARD */
 #page-dash{padding:0 16px 100px;overflow-y:auto;height:calc(100vh - 60px - env(safe-area-inset-bottom))}
-#page-dash .header{padding-top:calc(16px + env(safe-area-inset-top));margin-bottom:16px}
-.header h1{font-size:28px;font-weight:700;letter-spacing:-0.5px}
+.page-header{display:flex;justify-content:space-between;align-items:center;padding-top:calc(16px + env(safe-area-inset-top));margin-bottom:16px}
+.page-header h1{font-size:28px;font-weight:700;letter-spacing:-0.5px}
 .dash-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
 .dash-nav h2{font-size:20px;font-weight:600}
 .dash-nav-btns{display:flex;align-items:center;gap:8px}
+.dash-nav-btns button{background:var(--bg3);border:none;color:var(--text);width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center}
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:14px}
 .card-label{font-size:12px;color:var(--text2);font-weight:500;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
 .card-value{font-size:30px;font-weight:700;letter-spacing:-1px}
@@ -99,16 +91,12 @@ nav button svg{width:24px;height:24px}
 .edit-btn-dash{background:none;border:1.5px solid var(--border);border-radius:8px;width:28px;height:28px;cursor:pointer;color:var(--text3);font-size:13px;display:flex;align-items:center;justify-content:center;margin-left:4px;flex-shrink:0}
 .section-title{font-size:13px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin:18px 0 10px}
 .empty{text-align:center;color:var(--text3);padding:32px 0;font-size:14px}
-
-/* LOCAIS */
 #page-locais{padding:0 16px 100px;overflow-y:auto;height:calc(100vh - 60px - env(safe-area-inset-bottom))}
-#page-locais .header{padding-top:calc(16px + env(safe-area-inset-top));margin-bottom:16px}
+#page-locais .page-header{padding-top:calc(16px + env(safe-area-inset-top));margin-bottom:16px}
 .local-item{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border-radius:12px;margin-bottom:8px}
 .local-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
 .local-name{flex:1;font-size:15px}
 .local-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;padding:4px}
-
-/* MODAIS */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:200;align-items:flex-end}
 .overlay.open{display:flex}
 .modal{background:var(--bg2);border-radius:24px 24px 0 0;padding:24px;padding-bottom:calc(24px + env(safe-area-inset-bottom));width:100%;max-height:90vh;overflow-y:auto;animation:slideUp .3s ease}
@@ -131,26 +119,32 @@ nav button svg{width:24px;height:24px}
 .btn-primary{background:var(--accent);color:#fff}
 .btn-close{background:var(--bg3);color:var(--text2)}
 .btn-danger{background:rgba(239,68,68,0.15);color:var(--red);border:none;width:100%;padding:15px;border-radius:14px;font-size:16px;font-weight:600;cursor:pointer;margin-bottom:8px}
-
-/* RECORRENTE */
 .recur-toggle{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg3);border-radius:12px;margin-bottom:14px;cursor:pointer}
 .recur-label{font-size:14px;color:var(--text)}
 .toggle{width:44px;height:24px;background:var(--border);border-radius:12px;position:relative;transition:background .2s;flex-shrink:0}
 .toggle.on{background:var(--accent)}
 .toggle::after{content:'';position:absolute;width:20px;height:20px;background:#fff;border-radius:50%;top:2px;left:2px;transition:transform .2s}
 .toggle.on::after{transform:translateX(20px)}
-
-/* FILTRO MODAL */
 .filter-option{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg3);border-radius:12px;margin-bottom:8px;cursor:pointer;transition:all .2s}
 .filter-option.selected{background:rgba(99,102,241,0.15);border:1.5px solid var(--accent)}
 .filter-option-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
 .filter-option-name{flex:1;font-size:15px}
-.filter-check{font-size:16px;color:var(--accent2)}
-
-/* CONFIRM */
 .confirm-box{background:var(--bg2);border-radius:24px 24px 0 0;padding:28px 24px;padding-bottom:calc(28px + env(safe-area-inset-bottom));width:100%;animation:slideUp .3s ease}
 .confirm-title{font-size:18px;font-weight:600;margin-bottom:8px;text-align:center}
 .confirm-sub{font-size:14px;color:var(--text2);text-align:center;margin-bottom:24px}
+/* YEAR */
+.year-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.year-nav h3{font-size:20px;font-weight:700}
+.year-nav button{background:var(--bg3);border:none;color:var(--text);width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center}
+.year-total-card{background:rgba(99,102,241,0.1);border:1.5px solid var(--accent);border-radius:14px;padding:16px;margin-bottom:20px;text-align:center}
+.year-total-label{font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
+.year-total-value{font-size:28px;font-weight:700;color:var(--accent2)}
+.year-month-row{margin-bottom:14px}
+.year-month-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.year-month-name{font-size:13px;font-weight:600;color:var(--text);width:36px}
+.year-month-total{font-size:13px;font-weight:700;color:var(--text)}
+.year-bar-bg{flex:1;height:10px;background:var(--bg4);border-radius:5px;overflow:hidden;margin:0 10px}
+.year-month-sub{font-size:11px;color:var(--text3);text-align:right;margin-top:3px}
 </style>
 </head>
 <body>
@@ -178,10 +172,10 @@ nav button svg{width:24px;height:24px}
 </div>
 
 <div id="page-dash" class="page">
-  <div class="header" style="display:flex;justify-content:space-between;align-items:center;padding-top:calc(16px + env(safe-area-inset-top));margin-bottom:16px">
-  <h1>Dashboard</h1>
-  <button id="year-btn" style="background:var(--bg3);border:1.5px solid var(--border);color:var(--text2);padding:8px 14px;border-radius:20px;font-size:13px;font-weight:500;cursor:pointer">📊 2026</button>
-</div>
+  <div class="page-header">
+    <h1>Dashboard</h1>
+    <button class="filter-btn" id="year-btn">📊 2026</button>
+  </div>
   <div class="dash-nav">
     <button onclick="changeDashMonth(-1)">‹</button>
     <h2 id="dash-month-label"></h2>
@@ -194,7 +188,7 @@ nav button svg{width:24px;height:24px}
 </div>
 
 <div id="page-locais" class="page">
-  <div class="header"><h1>Locais</h1></div>
+  <div class="page-header"><h1>Locais</h1></div>
   <button class="btn btn-primary" onclick="openLocalModal()" style="margin-bottom:20px">+ Adicionar Local</button>
   <div id="locais-list"></div>
 </div>
@@ -220,7 +214,26 @@ nav button svg{width:24px;height:24px}
     <div class="modal-handle"></div>
     <h3>Filtrar por Local</h3>
     <div id="filter-options-list"></div>
-    <button class="btn btn-close" onclick="closeModal('overlay-filter')" style="margin-top:4px">Fechar</button>
+    <button class="btn btn-close" onclick="closeModal('overlay-filter')">Fechar</button>
+  </div>
+</div>
+
+<!-- MODAL RESUMO ANUAL -->
+<div class="overlay" id="overlay-year" onclick="closeIfOverlay(event,'overlay-year')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="year-nav">
+      <button onclick="changeYearView(-1)">‹</button>
+      <h3 id="year-label">2026</h3>
+      <button onclick="changeYearView(1)">›</button>
+    </div>
+    <div class="year-total-card">
+      <div class="year-total-label">Total Previsto do Ano</div>
+      <div class="year-total-value" id="year-total-value">R$ 0,00</div>
+      <div style="font-size:12px;color:var(--green);margin-top:4px" id="year-rec-value"></div>
+    </div>
+    <div id="year-months"></div>
+    <button class="btn btn-close" onclick="closeModal('overlay-year')">Fechar</button>
   </div>
 </div>
 
@@ -253,7 +266,7 @@ nav button svg{width:24px;height:24px}
           <label>Frequência</label>
           <select id="inp-recur-freq">
             <option value="semanal">Semanal (todo X-feira)</option>
-            <option value="quinzenal">Quinzenal (a cada 15 dias)</option>
+            <option value="quinzenal">Quinzenal (a cada 14 dias)</option>
             <option value="mensal1">Mensal — 1ª semana do mês</option>
             <option value="mensal2">Mensal — 2ª semana do mês</option>
             <option value="mensal3">Mensal — 3ª semana do mês</option>
@@ -263,10 +276,8 @@ nav button svg{width:24px;height:24px}
         <div class="form-group">
           <label>Por quantos meses?</label>
           <select id="inp-recur-meses">
-            <option value="2">2 meses</option>
-            <option value="3">3 meses</option>
-            <option value="4">4 meses</option>
-            <option value="6">6 meses</option>
+            <option value="2">2 meses</option><option value="3">3 meses</option>
+            <option value="4">4 meses</option><option value="6">6 meses</option>
             <option value="12">12 meses</option>
           </select>
         </div>
@@ -293,7 +304,7 @@ nav button svg{width:24px;height:24px}
         </div>
       </div>
     </div>
-    <button class="btn btn-primary" onclick="saveEvent()">Salvar</button>
+    <button class="btn btn-primary" id="save-btn" onclick="saveEvent()">Salvar</button>
     <button class="btn btn-close" onclick="closeModal('overlay-add')" style="margin-top:8px">Cancelar</button>
   </div>
 </div>
@@ -322,26 +333,7 @@ nav button svg{width:24px;height:24px}
   </div>
 </div>
 
-<!-- MODAL RESUMO ANUAL -->
-<div class="overlay" id="overlay-year" onclick="closeIfOverlay(event,'overlay-year')">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="year-nav">
-      <button onclick="changeYearView(-1)">‹</button>
-      <h3 id="year-label">2026</h3>
-      <button onclick="changeYearView(1)">›</button>
-    </div>
-    <div class="year-total-card">
-      <div class="year-total-label">Total Previsto do Ano</div>
-      <div class="year-total-value" id="year-total-value">R$ 0,00</div>
-      <div style="font-size:12px;color:var(--green);margin-top:4px" id="year-rec-value"></div>
-    </div>
-    <div id="year-months"></div>
-    <button class="btn btn-close" onclick="closeModal('overlay-year')">Fechar</button>
-  </div>
-</div>
-
-<!-- MODAL CONFIRMAR EXCLUSÃO -->
+<!-- MODAL CONFIRMAR -->
 <div class="overlay" id="overlay-confirm">
   <div class="confirm-box">
     <div class="modal-handle"></div>
@@ -359,13 +351,14 @@ const hdrs={'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':
 
 let curMonth=new Date().getMonth(),curYear=new Date().getFullYear();
 let dashMonth=new Date().getMonth(),dashYear=new Date().getFullYear();
+let yearView=new Date().getFullYear();
 let selectedDate=null,eventType='plantao',localColor='#6366f1',eventoColor='#6366f1';
 let locais=[],plantoes=[],eventos=[];
 let editingId=null,recurOn=false;
 let calFilter='todos',dashFilter='todos';
-let activeFilterCtx='cal';
 
 const MONTHS=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const MONTHS_SHORT=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 
 async function api(path,method='GET',body=null){
   const o={method,headers:hdrs};
@@ -394,9 +387,62 @@ function showPage(name,btn){
   if(name==='locais') renderLocais();
 }
 
-// FILTER MODAL
+// YEAR MODAL
+function openYearModal(){
+  document.getElementById('year-label').textContent=yearView;
+  renderYearModal();
+  document.getElementById('overlay-year').classList.add('open');
+}
+
+function changeYearView(d){
+  yearView+=d;
+  document.getElementById('year-label').textContent=yearView;
+  document.getElementById('year-btn').textContent='📊 '+yearView;
+  renderYearModal();
+}
+
+function renderYearModal(){
+  const container=document.getElementById('year-months');
+  container.innerHTML='';
+  let totalAno=0,recAno=0;
+
+  const totals=Array.from({length:12},(_,i)=>{
+    const ym=`${yearView}-${String(i+1).padStart(2,'0')}`;
+    return plantoes.filter(p=>p.data_pagamento.slice(0,7)===ym).reduce((s,p)=>s+Number(p.valor),0);
+  });
+  const maxVal=Math.max(...totals,1);
+
+  totals.forEach((total,i)=>{
+    const ym=`${yearView}-${String(i+1).padStart(2,'0')}`;
+    const doMes=plantoes.filter(p=>p.data_pagamento.slice(0,7)===ym);
+    const recebido=doMes.filter(p=>p.recebido).reduce((s,p)=>s+Number(p.valor),0);
+    totalAno+=total;recAno+=recebido;
+    const pct=Math.round((total/maxVal)*100);
+    const pctRec=total>0?Math.round((recebido/total)*100):0;
+
+    const row=document.createElement('div');
+    row.className='year-month-row';
+    row.innerHTML=`
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="year-month-name">${MONTHS_SHORT[i]}</span>
+        <div class="year-bar-bg" style="flex:1">
+          <div style="width:${pct}%;height:100%;border-radius:5px;background:rgba(99,102,241,0.3);position:relative">
+            <div style="width:${pctRec}%;height:100%;border-radius:5px;background:var(--green);position:absolute;top:0;left:0"></div>
+          </div>
+        </div>
+        <span class="year-month-total" style="min-width:90px;text-align:right">${total>0?fmtMoney(total):'—'}</span>
+      </div>
+      ${recebido>0?`<div style="text-align:right;font-size:11px;color:var(--green);margin-top:2px;padding-right:0">✅ ${fmtMoney(recebido)} recebido</div>`:''}
+    `;
+    container.appendChild(row);
+  });
+
+  document.getElementById('year-total-value').textContent=fmtMoney(totalAno);
+  document.getElementById('year-rec-value').textContent=recAno>0?'✅ '+fmtMoney(recAno)+' já recebido no ano':'';
+}
+
+// FILTER
 function openFilterModal(ctx){
-  activeFilterCtx=ctx;
   const curFilter=ctx==='cal'?calFilter:dashFilter;
   const list=document.getElementById('filter-options-list');
   list.innerHTML='';
@@ -404,11 +450,13 @@ function openFilterModal(ctx){
   opts.forEach(opt=>{
     const el=document.createElement('div');
     el.className='filter-option'+(curFilter===opt.id?' selected':'');
-    el.innerHTML=`<div class="filter-option-dot" style="background:${opt.cor}"></div><span class="filter-option-name">${opt.label}</span>${curFilter===opt.id?'<span class="filter-check">✓</span>':''}`;
+    el.innerHTML=`<div class="filter-option-dot" style="background:${opt.cor}"></div><span class="filter-option-name">${opt.label}</span>${curFilter===opt.id?'<span style="color:var(--accent2)">✓</span>':''}`;
     el.onclick=()=>{
-      if(ctx==='cal'){calFilter=opt.id;updateFilterBtn('cal-filter-btn',opt.id,opt.label);renderCalendar();if(selectedDate)renderPanel();}
-      else{dashFilter=opt.id;updateFilterBtn('dash-filter-btn',opt.id,opt.label);renderDash();}
+      if(ctx==='cal'){calFilter=opt.id;updateFilterBtn('cal-filter-btn',opt.id,opt.label);}
+      else{dashFilter=opt.id;updateFilterBtn('dash-filter-btn',opt.id,opt.label);}
       closeModal('overlay-filter');
+      if(ctx==='cal'){renderCalendar();if(selectedDate)renderPanel();}
+      else renderDash();
     };
     list.appendChild(el);
   });
@@ -491,7 +539,7 @@ function renderPanel(){
       </div>
       <div class="event-actions">
         <button class="event-btn" onclick="openEditPlantao('${p.id}')">✏️</button>
-        <button class="event-btn" onclick="confirmDelete('plantao','${p.id}','${p.locais?.nome||'Plantão'}')">🗑</button>
+        <button class="event-btn" onclick="confirmDelete('plantao','${p.id}','${(p.locais?.nome||'Plantão').replace(/'/g,"\\'")}')">🗑</button>
       </div>`;
     panel.appendChild(el);
   });
@@ -500,28 +548,25 @@ function renderPanel(){
     el.innerHTML=`
       <div class="event-bar" style="background:${e.cor||'#6366f1'}"></div>
       <div class="event-info"><div class="event-title">${e.titulo}</div><div class="event-sub">${e.tipo}</div></div>
-      <div class="event-actions"><button class="event-btn" onclick="confirmDelete('evento','${e.id}','${e.titulo}')">🗑</button></div>`;
+      <div class="event-actions"><button class="event-btn" onclick="confirmDelete('evento','${e.id}','${e.titulo.replace(/'/g,"\\'")}')">🗑</button></div>`;
     panel.appendChild(el);
   });
 }
 
-// CONFIRM DELETE
 function confirmDelete(type,id,nome){
   document.getElementById('confirm-msg').textContent=`Deseja excluir "${nome}"? Esta ação não pode ser desfeita.`;
   document.getElementById('confirm-yes').onclick=()=>doDelete(type,id);
   document.getElementById('overlay-confirm').classList.add('open');
 }
+
 async function doDelete(type,id){
   closeModal('overlay-confirm');
   if(type==='plantao'){await api('plantoes?id=eq.'+id,'DELETE');plantoes=plantoes.filter(p=>p.id!==id);}
   else if(type==='evento'){await api('eventos?id=eq.'+id,'DELETE');eventos=eventos.filter(e=>e.id!==id);}
-  else if(type==='local'){await api('locais?id=eq.'+id,'DELETE');await document.getElementById('year-btn').addEventListener('click', openYearModal);
-
-loadAll();return;}
+  else if(type==='local'){await api('locais?id=eq.'+id,'DELETE');await loadAll();return;}
   renderCalendar();renderPanel();renderDash();
 }
 
-// EDIT
 function openEditPlantao(id){
   const p=plantoes.find(x=>x.id===id);if(!p) return;
   editingId=id;
@@ -538,6 +583,7 @@ function openEditPlantao(id){
   document.getElementById('type-sel-row').style.display='none';
   document.getElementById('recur-toggle').style.display='none';
   document.getElementById('recur-options').style.display='none';
+  document.getElementById('save-btn').textContent='Salvar';
   setType('plantao');
   document.getElementById('overlay-add').classList.add('open');
 }
@@ -568,6 +614,7 @@ function openAddModal(){
   document.getElementById('recur-toggle').style.display='flex';
   document.getElementById('recur-switch').className='toggle';
   document.getElementById('recur-options').style.display='none';
+  document.getElementById('save-btn').textContent='Salvar';
   setType('plantao');
   document.getElementById('overlay-add').classList.add('open');
 }
@@ -589,7 +636,6 @@ function setType(t){
 function selectLocalColor(el){document.querySelectorAll('#local-colors .color-opt').forEach(e=>e.classList.remove('selected'));el.classList.add('selected');localColor=el.dataset.color;}
 function selectEventoColor(el){document.querySelectorAll('#evento-colors .color-opt').forEach(e=>e.classList.remove('selected'));el.classList.add('selected');eventoColor=el.dataset.color;}
 
-// GERAR DATAS RECORRENTES
 function gerarDatasRecorrentes(iniStr,fimStr,pgtoStr,freq,meses){
   const datas=[];
   const iniBase=new Date(iniStr);
@@ -597,38 +643,19 @@ function gerarDatasRecorrentes(iniStr,fimStr,pgtoStr,freq,meses){
   const pgtoBase=new Date(pgtoStr+'T12:00:00');
   const diffMs=fimBase-iniBase;
   const diffPgto=pgtoBase-iniBase;
-  const dow=iniBase.getDay(); // dia da semana original
-
+  const dow=iniBase.getDay();
   if(freq==='semanal'){
-    let cur=new Date(iniBase);
-    cur.setDate(cur.getDate()+7);
+    let cur=new Date(iniBase);cur.setDate(cur.getDate()+7);
     const end=new Date(iniBase);end.setMonth(end.getMonth()+meses);
-    while(cur<end){
-      const ini=new Date(cur);
-      const fim=new Date(cur.getTime()+diffMs);
-      const pgto=new Date(cur.getTime()+diffPgto);
-      datas.push({ini,fim,pgto});
-      cur.setDate(cur.getDate()+7);
-    }
+    while(cur<end){datas.push({ini:new Date(cur),fim:new Date(cur.getTime()+diffMs),pgto:new Date(cur.getTime()+diffPgto)});cur.setDate(cur.getDate()+7);}
   } else if(freq==='quinzenal'){
-    let cur=new Date(iniBase);
-    cur.setDate(cur.getDate()+14);
+    let cur=new Date(iniBase);cur.setDate(cur.getDate()+14);
     const end=new Date(iniBase);end.setMonth(end.getMonth()+meses);
-    while(cur<end){
-      const ini=new Date(cur);
-      const fim=new Date(cur.getTime()+diffMs);
-      const pgto=new Date(cur.getTime()+diffPgto);
-      datas.push({ini,fim,pgto});
-      cur.setDate(cur.getDate()+14);
-    }
+    while(cur<end){datas.push({ini:new Date(cur),fim:new Date(cur.getTime()+diffMs),pgto:new Date(cur.getTime()+diffPgto)});cur.setDate(cur.getDate()+14);}
   } else {
-    // mensal1,2,3,4
     const semana=parseInt(freq.replace('mensal',''));
     for(let i=1;i<=meses;i++){
-      const targetMonth=new Date(iniBase);
-      targetMonth.setMonth(targetMonth.getMonth()+i);
-      // achar o N-ésimo dia da semana naquele mês
-      const firstDay=new Date(targetMonth.getFullYear(),targetMonth.getMonth(),1);
+      const targetMonth=new Date(iniBase);targetMonth.setMonth(targetMonth.getMonth()+i);
       let count=0,day=1;
       while(count<semana){
         const dt=new Date(targetMonth.getFullYear(),targetMonth.getMonth(),day);
@@ -636,9 +663,7 @@ function gerarDatasRecorrentes(iniStr,fimStr,pgtoStr,freq,meses){
         if(count<semana) day++;
       }
       const ini=new Date(targetMonth.getFullYear(),targetMonth.getMonth(),day,iniBase.getHours(),iniBase.getMinutes());
-      const fim=new Date(ini.getTime()+diffMs);
-      const pgto=new Date(ini.getTime()+diffPgto);
-      datas.push({ini,fim,pgto});
+      datas.push({ini,fim:new Date(ini.getTime()+diffMs),pgto:new Date(ini.getTime()+diffPgto)});
     }
   }
   return datas;
@@ -648,46 +673,41 @@ function fmtDT(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'
 function fmtD(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 
 async function saveEvent(){
-  const btn=document.querySelector('#overlay-add .btn-primary');
+  const btn=document.getElementById('save-btn');
   if(btn.disabled) return;
-  btn.disabled=true;
-  btn.textContent='Salvando...';
-  btn.style.opacity='0.7';
+  btn.disabled=true;btn.textContent='Salvando...';btn.style.opacity='0.7';
   try{
-  if(eventType==='plantao'){
-    const localId=document.getElementById('sel-local').value;
-    const ini=document.getElementById('inp-inicio').value;
-    const fim=document.getElementById('inp-fim').value;
-    const pgto=document.getElementById('inp-pgto').value;
-    const valor=parseFloat(document.getElementById('inp-valor').value);
-    const descricao=document.getElementById('inp-descricao').value.trim();
-    if(!localId||!ini||!fim||!pgto||isNaN(valor)){btn.disabled=false;btn.textContent='Salvar';btn.style.opacity='1';return alert('Preencha todos os campos!');}
-    if(editingId){
-      await api('plantoes?id=eq.'+editingId,'PATCH',{local_id:localId,data_inicio:ini,data_fim:fim,data_pagamento:pgto,valor,descricao});
-    } else {
-      await api('plantoes','POST',{local_id:localId,data_inicio:ini,data_fim:fim,data_pagamento:pgto,valor,descricao});
-      if(recurOn){
-        const freq=document.getElementById('inp-recur-freq').value;
-        const meses=parseInt(document.getElementById('inp-recur-meses').value);
-        const extras=gerarDatasRecorrentes(ini,fim,pgto,freq,meses);
-        for(const e of extras){
-          await api('plantoes','POST',{local_id:localId,data_inicio:fmtDT(e.ini),data_fim:fmtDT(e.fim),data_pagamento:fmtD(e.pgto),valor,descricao});
+    if(eventType==='plantao'){
+      const localId=document.getElementById('sel-local').value;
+      const ini=document.getElementById('inp-inicio').value;
+      const fim=document.getElementById('inp-fim').value;
+      const pgto=document.getElementById('inp-pgto').value;
+      const valor=parseFloat(document.getElementById('inp-valor').value);
+      const descricao=document.getElementById('inp-descricao').value.trim();
+      if(!localId||!ini||!fim||!pgto||isNaN(valor)){btn.disabled=false;btn.textContent='Salvar';btn.style.opacity='1';return alert('Preencha todos os campos!');}
+      if(editingId){
+        await api('plantoes?id=eq.'+editingId,'PATCH',{local_id:localId,data_inicio:ini,data_fim:fim,data_pagamento:pgto,valor,descricao});
+      } else {
+        await api('plantoes','POST',{local_id:localId,data_inicio:ini,data_fim:fim,data_pagamento:pgto,valor,descricao});
+        if(recurOn){
+          const freq=document.getElementById('inp-recur-freq').value;
+          const meses=parseInt(document.getElementById('inp-recur-meses').value);
+          const extras=gerarDatasRecorrentes(ini,fim,pgto,freq,meses);
+          for(const e of extras) await api('plantoes','POST',{local_id:localId,data_inicio:fmtDT(e.ini),data_fim:fmtDT(e.fim),data_pagamento:fmtD(e.pgto),valor,descricao});
         }
       }
+    } else {
+      const titulo=document.getElementById('inp-evento-titulo').value.trim();
+      const tipo=document.getElementById('inp-evento-tipo').value;
+      if(!titulo){btn.disabled=false;btn.textContent='Salvar';btn.style.opacity='1';return alert('Informe a descrição!');}
+      const {d,m,y}=selectedDate;
+      const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      await api('eventos','POST',{titulo,data:ds,tipo,cor:eventoColor});
     }
-  } else {
-    const titulo=document.getElementById('inp-evento-titulo').value.trim();
-    const tipo=document.getElementById('inp-evento-tipo').value;
-    if(!titulo) return alert('Informe a descrição!');
-    const {d,m,y}=selectedDate;
-    const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    await api('eventos','POST',{titulo,data:ds,tipo,cor:eventoColor});
-  }
-  await loadAll();renderPanel();renderDash();
-  closeModal('overlay-add');
-  }catch(e){console.error(e);}finally{
-    btn.disabled=false;btn.textContent='Salvar';btn.style.opacity='1';
-  }
+    await loadAll();renderPanel();renderDash();
+    closeModal('overlay-add');
+  }catch(e){console.error(e);}
+  finally{btn.disabled=false;btn.textContent='Salvar';btn.style.opacity='1';}
 }
 
 function openLocalModal(){document.getElementById('overlay-local').classList.add('open');}
@@ -698,12 +718,13 @@ async function saveLocal(){
   document.getElementById('inp-local-nome').value='';
   await loadAll();closeModal('overlay-local');
 }
+
 function renderLocais(){
   const list=document.getElementById('locais-list');list.innerHTML='';
   if(!locais.length){list.innerHTML='<div class="empty">Nenhum local cadastrado</div>';return;}
   locais.forEach(l=>{
     const el=document.createElement('div');el.className='local-item';
-    el.innerHTML=`<div class="local-dot" style="background:${l.cor}"></div><span class="local-name">${l.nome}</span><button class="local-del" onclick="confirmDelete('local','${l.id}','${l.nome}')">🗑</button>`;
+    el.innerHTML=`<div class="local-dot" style="background:${l.cor}"></div><span class="local-name">${l.nome}</span><button class="local-del" onclick="confirmDelete('local','${l.id}','${l.nome.replace(/'/g,"\\'")}')">🗑</button>`;
     list.appendChild(el);
   });
 }
@@ -730,16 +751,8 @@ function renderDash(){
       <div class="card-sub">${doMes.length} plantão(ões) com pagamento em ${MONTHS[dashMonth]}</div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
-      <div class="card">
-        <div class="card-label">A Receber</div>
-        <div class="card-value yellow" style="font-size:22px">${fmtMoney(totalA)}</div>
-        <div class="card-sub">${aRec.length} plantão(ões)</div>
-      </div>
-      <div class="card">
-        <div class="card-label">Recebidos</div>
-        <div class="card-value green" style="font-size:22px">${fmtMoney(totalR)}</div>
-        <div class="card-sub">${rec.length} plantão(ões)</div>
-      </div>
+      <div class="card"><div class="card-label">A Receber</div><div class="card-value yellow" style="font-size:22px">${fmtMoney(totalA)}</div><div class="card-sub">${aRec.length} plantão(ões)</div></div>
+      <div class="card"><div class="card-label">Recebidos</div><div class="card-value green" style="font-size:22px">${fmtMoney(totalR)}</div><div class="card-sub">${rec.length} plantão(ões)</div></div>
     </div>`;
   if(aRec.length){const t=document.createElement('div');t.className='section-title';t.textContent='⏳ Aguardando Pagamento';c.appendChild(t);aRec.forEach(p=>c.appendChild(makeDashItem(p)));}
   if(rec.length){const t=document.createElement('div');t.className='section-title';t.textContent='✅ Já Recebidos';c.appendChild(t);rec.forEach(p=>c.appendChild(makeDashItem(p)));}
@@ -787,6 +800,11 @@ async function toggleRecebido(id,atual){
 function fmtMoney(v){return'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2});}
 function closeModal(id){document.getElementById(id).classList.remove('open');editingId=null;recurOn=false;}
 function closeIfOverlay(e,id){if(e.target.id===id)closeModal(id);}
+
+// Inicializa botão ano após DOM carregar
+window.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('year-btn').addEventListener('click',openYearModal);
+});
 
 loadAll();
 </script>
