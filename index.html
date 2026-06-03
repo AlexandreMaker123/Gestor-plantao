@@ -24,9 +24,9 @@
 :root{--bg:#0a0a0f;--bg2:#13131a;--bg3:#1c1c28;--bg4:#252535;--accent:#6366f1;--accent2:#818cf8;--green:#22c55e;--red:#ef4444;--yellow:#f59e0b;--text:#f1f5f9;--text2:#94a3b8;--text3:#475569;--border:#2d2d42;--radius:16px}
 body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;height:100vh;overflow:hidden}
 nav{display:flex;justify-content:space-around;align-items:center;position:fixed;bottom:0;left:0;right:0;background:rgba(19,19,26,0.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--border);padding:12px 0;padding-bottom:calc(12px + env(safe-area-inset-bottom));z-index:100}
-nav button{background:none;border:none;color:var(--text3);display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;cursor:pointer;transition:color .2s;padding:4px 20px}
+nav button{background:none;border:none;color:var(--text3);display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;cursor:pointer;transition:color .2s;padding:4px 16px}
 nav button.active{color:var(--accent2)}
-nav button svg{width:24px;height:24px}
+nav button svg{width:22px;height:22px}
 .page{display:none;max-width:480px;margin:0 auto}
 .page.active{display:block}
 #page-cal.active{display:flex;flex-direction:column;height:calc(100vh - 60px - env(safe-area-inset-bottom))}
@@ -67,6 +67,8 @@ nav button svg{width:24px;height:24px}
 .event-btn{background:none;border:none;cursor:pointer;font-size:15px;padding:4px;color:var(--text3)}
 .empty-day{text-align:center;color:var(--text3);padding:28px 0;font-size:14px}
 #page-dash{padding:0 16px 100px;overflow-y:auto;height:calc(100vh - 60px - env(safe-area-inset-bottom))}
+#page-locais{padding:0 16px 100px;overflow-y:auto;height:calc(100vh - 60px - env(safe-area-inset-bottom))}
+#page-config{padding:0 16px 100px;overflow-y:auto;height:calc(100vh - 60px - env(safe-area-inset-bottom))}
 .page-header{display:flex;justify-content:space-between;align-items:center;padding-top:calc(16px + env(safe-area-inset-top));margin-bottom:16px}
 .page-header h1{font-size:28px;font-weight:700;letter-spacing:-0.5px}
 .dash-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
@@ -91,9 +93,6 @@ nav button svg{width:24px;height:24px}
 .edit-btn-dash{background:none;border:1.5px solid var(--border);border-radius:8px;width:28px;height:28px;cursor:pointer;color:var(--text3);font-size:13px;display:flex;align-items:center;justify-content:center;margin-left:4px;flex-shrink:0}
 .section-title{font-size:13px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin:18px 0 10px}
 .empty{text-align:center;color:var(--text3);padding:32px 0;font-size:14px}
-#page-config{padding:0 16px 100px;overflow-y:auto;height:calc(100vh - 60px - env(safe-area-inset-bottom))}
-#page-config .page-header{padding-top:calc(16px + env(safe-area-inset-top));margin-bottom:16px}
-#page-locais .page-header{padding-top:calc(16px + env(safe-area-inset-top));margin-bottom:16px}
 .local-item{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border-radius:12px;margin-bottom:8px}
 .local-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
 .local-name{flex:1;font-size:15px}
@@ -132,8 +131,7 @@ nav button svg{width:24px;height:24px}
 .filter-option-name{flex:1;font-size:15px}
 .confirm-box{background:var(--bg2);border-radius:24px 24px 0 0;padding:28px 24px;padding-bottom:calc(28px + env(safe-area-inset-bottom));width:100%;animation:slideUp .3s ease}
 .confirm-title{font-size:18px;font-weight:600;margin-bottom:8px;text-align:center}
-.confirm-sub{font-size:14px;color:var(--text2);text-align:center;margin-bottom:24px}
-/* YEAR */
+.confirm-sub{font-size:14px;color:var(--text2);text-align:center;margin-bottom:16px}
 .year-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
 .year-nav h3{font-size:20px;font-weight:700}
 .year-nav button{background:var(--bg3);border:none;color:var(--text);width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center}
@@ -141,11 +139,7 @@ nav button svg{width:24px;height:24px}
 .year-total-label{font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
 .year-total-value{font-size:28px;font-weight:700;color:var(--accent2)}
 .year-month-row{margin-bottom:14px}
-.year-month-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
-.year-month-name{font-size:13px;font-weight:600;color:var(--text);width:36px}
-.year-month-total{font-size:13px;font-weight:700;color:var(--text)}
 .year-bar-bg{flex:1;height:10px;background:var(--bg4);border-radius:5px;overflow:hidden;margin:0 10px}
-.year-month-sub{font-size:11px;color:var(--text3);text-align:right;margin-top:3px}
 </style>
 </head>
 <body>
@@ -188,48 +182,37 @@ nav button svg{width:24px;height:24px}
   <div id="dash-content"></div>
 </div>
 
+<div id="page-locais" class="page">
+  <div class="page-header"><h1>Locais</h1></div>
+  <button class="btn btn-primary" onclick="openLocalModal()" style="margin-bottom:20px">+ Adicionar Local</button>
+  <div id="locais-list"></div>
+</div>
+
 <div id="page-config" class="page">
-  <div class="page-header"><h1>Configurações</h1></div>
-
+  <div class="page-header"><h1>Config</h1></div>
   <div class="section-title">🔔 Notificações</div>
-
-  <div id="notif-permission-banner" style="display:none;background:rgba(245,158,11,0.1);border:1.5px solid var(--yellow);border-radius:12px;padding:14px 16px;margin-bottom:16px">
+  <div id="notif-banner" style="display:none;background:rgba(245,158,11,0.1);border:1.5px solid var(--yellow);border-radius:12px;padding:14px 16px;margin-bottom:16px">
     <div style="font-size:14px;font-weight:600;color:var(--yellow);margin-bottom:4px">Permissão necessária</div>
-    <div style="font-size:13px;color:var(--text2);margin-bottom:12px">Para receber notificações, autorize o acesso.</div>
-    <button class="btn btn-primary" style="margin:0" onclick="requestNotifPermission().then(renderConfigPage)">Autorizar notificações</button>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:12px">Autorize as notificações para receber lembretes.</div>
+    <button class="btn btn-primary" style="margin:0" onclick="pedirPermissao()">Autorizar</button>
   </div>
-
-  <div class="local-item" style="justify-content:space-between">
-    <div>
-      <div style="font-size:14px;font-weight:500">Lembretes de plantão</div>
-      <div style="font-size:12px;color:var(--text3)">1 dia antes e X horas antes</div>
-    </div>
-    <div class="toggle" id="toggle-plantao" onclick="toggleNotifConfig('plantao')"></div>
+  <div class="local-item" style="justify-content:space-between;margin-bottom:8px">
+    <div><div style="font-size:14px;font-weight:500">Lembretes de plantão</div><div style="font-size:12px;color:var(--text3)">1 dia antes e X horas antes</div></div>
+    <div class="toggle" id="tog-plantao" onclick="toggleCfg('plantao')"></div>
   </div>
-
-  <div class="local-item" style="justify-content:space-between;margin-top:8px">
-    <div>
-      <div style="font-size:14px;font-weight:500">Lembretes de pagamento</div>
-      <div style="font-size:12px;color:var(--text3)">3 dias antes e no dia</div>
-    </div>
-    <div class="toggle" id="toggle-pagamento" onclick="toggleNotifConfig('pagamento')"></div>
+  <div class="local-item" style="justify-content:space-between;margin-bottom:8px">
+    <div><div style="font-size:14px;font-weight:500">Lembretes de pagamento</div><div style="font-size:12px;color:var(--text3)">3 dias antes e no dia</div></div>
+    <div class="toggle" id="tog-pagamento" onclick="toggleCfg('pagamento')"></div>
   </div>
-
   <div class="form-group" style="margin-top:16px">
     <label>Antecedência do lembrete</label>
-    <select id="sel-antecedencia" onchange="changeAntecedencia()">
+    <select id="sel-antec" onchange="salvarCfg()">
       <option value="1">1 hora antes</option>
       <option value="2">2 horas antes</option>
       <option value="4">4 horas antes</option>
       <option value="8">8 horas antes</option>
     </select>
   </div>
-</div>
-
-
-  <div class="page-header"><h1>Locais</h1></div>
-  <button class="btn btn-primary" onclick="openLocalModal()" style="margin-bottom:20px">+ Adicionar Local</button>
-  <div id="locais-list"></div>
 </div>
 
 <nav>
@@ -246,7 +229,7 @@ nav button svg{width:24px;height:24px}
     Locais
   </button>
   <button onclick="showPage('config',this)">
-    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
     Config
   </button>
 </nav>
@@ -391,17 +374,17 @@ nav button svg{width:24px;height:24px}
 <div class="overlay" id="overlay-confirm">
   <div class="confirm-box">
     <div class="modal-handle"></div>
-    <div class="confirm-title" id="confirm-title">Excluir?</div>
+    <div class="confirm-title">Excluir?</div>
     <div class="confirm-sub" id="confirm-msg"></div>
     <div id="confirm-recur-opts" style="display:none;margin-bottom:16px">
       <div class="filter-option" id="copt-este" onclick="selectConfirmOpt('este')">
         <span style="font-size:20px">1️⃣</span>
         <div style="flex:1"><div style="font-size:14px;font-weight:600">Só este plantão</div><div style="font-size:12px;color:var(--text3)">Remove apenas este dia</div></div>
-        <span id="copt-este-check" style="color:var(--accent2);display:none">✓</span>
+        <span id="copt-este-check" style="color:var(--accent2)">✓</span>
       </div>
       <div class="filter-option" id="copt-futuros" onclick="selectConfirmOpt('futuros')">
         <span style="font-size:20px">⏭️</span>
-        <div style="flex:1"><div style="font-size:14px;font-weight:600">Este e os futuros</div><div style="font-size:12px;color:var(--text3)">Remove este e todos os próximos da série</div></div>
+        <div style="flex:1"><div style="font-size:14px;font-weight:600">Este e os futuros</div><div style="font-size:12px;color:var(--text3)">Remove este e todos os próximos</div></div>
         <span id="copt-futuros-check" style="color:var(--accent2);display:none">✓</span>
       </div>
       <div class="filter-option" id="copt-todos" onclick="selectConfirmOpt('todos')">
@@ -427,10 +410,13 @@ let selectedDate=null,eventType='plantao',localColor='#6366f1',eventoColor='#636
 let locais=[],plantoes=[],eventos=[];
 let editingId=null,recurOn=false;
 let calFilter='todos',dashFilter='todos';
+let confirmRecurOpt='este';
+let notifCfg={plantao:true,pagamento:true,antecedencia:2};
 
 const MONTHS=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const MONTHS_SHORT=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 
+// API
 async function api(path,method='GET',body=null){
   const o={method,headers:hdrs};
   if(body) o.body=JSON.stringify(body);
@@ -449,6 +435,7 @@ async function loadAll(){
   if(selectedDate) renderPanel();
 }
 
+// PAGES
 function showPage(name,btn){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
@@ -459,7 +446,64 @@ function showPage(name,btn){
   if(name==='config') renderConfigPage();
 }
 
-// YEAR MODAL
+// NOTIFICAÇÕES
+function loadNotifCfg(){
+  const s=localStorage.getItem('notif_cfg');
+  if(s) notifCfg=JSON.parse(s);
+}
+
+function saveNotifCfgLocal(){
+  localStorage.setItem('notif_cfg',JSON.stringify(notifCfg));
+}
+
+function toggleCfg(key){
+  notifCfg[key]=!notifCfg[key];
+  saveNotifCfgLocal();
+  renderConfigPage();
+}
+
+function salvarCfg(){
+  notifCfg.antecedencia=parseInt(document.getElementById('sel-antec').value);
+  saveNotifCfgLocal();
+}
+
+async function pedirPermissao(){
+  if(!('Notification' in window)) return;
+  await Notification.requestPermission();
+  renderConfigPage();
+}
+
+function renderConfigPage(){
+  const perm='Notification' in window?Notification.permission:'denied';
+  document.getElementById('notif-banner').style.display=perm==='granted'?'none':'block';
+  document.getElementById('tog-plantao').className='toggle'+(notifCfg.plantao?' on':'');
+  document.getElementById('tog-pagamento').className='toggle'+(notifCfg.pagamento?' on':'');
+  document.getElementById('sel-antec').value=notifCfg.antecedencia;
+}
+
+function agendarNotificacoes(p){
+  if(!('Notification' in window)||Notification.permission!=='granted') return;
+  const ini=new Date(p.data_inicio);
+  const agora=new Date();
+  if(notifCfg.plantao){
+    const umDia=new Date(ini);umDia.setDate(umDia.getDate()-1);
+    if(umDia>agora) setTimeout(()=>new Notification('🏥 Plantão amanhã',{body:`${p.locais?.nome||'Plantão'} às ${p.data_inicio.slice(11,16)}`,icon:'/icon.png'}),umDia-agora);
+    const hAntes=new Date(ini);hAntes.setHours(hAntes.getHours()-notifCfg.antecedencia);
+    if(hAntes>agora) setTimeout(()=>new Notification(`⏰ Plantão em ${notifCfg.antecedencia}h`,{body:`${p.locais?.nome||'Plantão'} às ${p.data_inicio.slice(11,16)}`,icon:'/icon.png'}),hAntes-agora);
+  }
+  if(notifCfg.pagamento){
+    const pgto=new Date(p.data_pagamento+'T08:00:00');
+    const tres=new Date(pgto);tres.setDate(tres.getDate()-3);
+    if(tres>agora) setTimeout(()=>new Notification('💰 Pagamento em 3 dias',{body:`R$ ${Number(p.valor).toLocaleString('pt-BR',{minimumFractionDigits:2})} — ${p.locais?.nome||''}`,icon:'/icon.png'}),tres-agora);
+    if(pgto>agora) setTimeout(()=>new Notification('📲 Pagamento hoje!',{body:`R$ ${Number(p.valor).toLocaleString('pt-BR',{minimumFractionDigits:2})} — ${p.locais?.nome||''}`,icon:'/icon.png'}),pgto-agora);
+  }
+}
+
+function agendarTodas(){
+  if('Notification' in window&&Notification.permission==='granted') plantoes.forEach(p=>agendarNotificacoes(p));
+}
+
+// YEAR
 function openYearModal(){
   document.getElementById('year-label').textContent=yearView;
   renderYearModal();
@@ -477,13 +521,11 @@ function renderYearModal(){
   const container=document.getElementById('year-months');
   container.innerHTML='';
   let totalAno=0,recAno=0;
-
   const totals=Array.from({length:12},(_,i)=>{
     const ym=`${yearView}-${String(i+1).padStart(2,'0')}`;
     return plantoes.filter(p=>p.data_pagamento.slice(0,7)===ym).reduce((s,p)=>s+Number(p.valor),0);
   });
   const maxVal=Math.max(...totals,1);
-
   totals.forEach((total,i)=>{
     const ym=`${yearView}-${String(i+1).padStart(2,'0')}`;
     const doMes=plantoes.filter(p=>p.data_pagamento.slice(0,7)===ym);
@@ -491,24 +533,21 @@ function renderYearModal(){
     totalAno+=total;recAno+=recebido;
     const pct=Math.round((total/maxVal)*100);
     const pctRec=total>0?Math.round((recebido/total)*100):0;
-
     const row=document.createElement('div');
     row.className='year-month-row';
     row.innerHTML=`
       <div style="display:flex;align-items:center;gap:8px">
-        <span class="year-month-name">${MONTHS_SHORT[i]}</span>
-        <div class="year-bar-bg" style="flex:1">
+        <span style="font-size:13px;font-weight:600;width:36px;color:var(--text)">${MONTHS_SHORT[i]}</span>
+        <div class="year-bar-bg">
           <div style="width:${pct}%;height:100%;border-radius:5px;background:rgba(99,102,241,0.3);position:relative">
             <div style="width:${pctRec}%;height:100%;border-radius:5px;background:var(--green);position:absolute;top:0;left:0"></div>
           </div>
         </div>
-        <span class="year-month-total" style="min-width:90px;text-align:right">${total>0?fmtMoney(total):'—'}</span>
+        <span style="font-size:13px;font-weight:700;min-width:90px;text-align:right">${total>0?fmtMoney(total):'—'}</span>
       </div>
-      ${recebido>0?`<div style="text-align:right;font-size:11px;color:var(--green);margin-top:2px;padding-right:0">✅ ${fmtMoney(recebido)} recebido</div>`:''}
-    `;
+      ${recebido>0?`<div style="text-align:right;font-size:11px;color:var(--green);margin-top:2px">✅ ${fmtMoney(recebido)} recebido</div>`:''}`;
     container.appendChild(row);
   });
-
   document.getElementById('year-total-value').textContent=fmtMoney(totalAno);
   document.getElementById('year-rec-value').textContent=recAno>0?'✅ '+fmtMoney(recAno)+' já recebido no ano':'';
 }
@@ -625,105 +664,7 @@ function renderPanel(){
   });
 }
 
-// NOTIFICAÇÕES
-let notifPermission='default';
-let notifConfig={plantao:true,pagamento:true,antecedencia:2};
-
-function loadNotifConfig(){
-  const saved=localStorage.getItem('notif_config');
-  if(saved) notifConfig=JSON.parse(saved);
-}
-
-function saveNotifConfig(){
-  localStorage.setItem('notif_config',JSON.stringify(notifConfig));
-}
-
-async function initNotifications(){
-  loadNotifConfig();
-  if(!('serviceWorker' in navigator)||!('Notification' in window)) return;
-  try{
-    await navigator.serviceWorker.register('/sw.js');
-    notifPermission=Notification.permission;
-    if(notifPermission==='default') await requestNotifPermission();
-  }catch(e){console.log('SW error:',e);}
-}
-
-async function requestNotifPermission(){
-  const result=await Notification.requestPermission();
-  notifPermission=result;
-  return result;
-}
-
-function scheduleNotificationsForPlantao(p){
-  if(!notifConfig.plantao||notifPermission!=='granted') return;
-  const ini=new Date(p.data_inicio);
-  const agora=new Date();
-
-  // Lembrete 1 dia antes
-  const umDiaAntes=new Date(ini);
-  umDiaAntes.setDate(umDiaAntes.getDate()-1);
-  if(umDiaAntes>agora){
-    const ms=umDiaAntes-agora;
-    setTimeout(()=>{
-      new Notification('🏥 Plantão amanhã',{
-        body:`${p.locais?.nome||'Plantão'} às ${p.data_inicio.slice(11,16)}`,
-        icon:'/icon.png'
-      });
-    },ms);
-  }
-
-  // Lembrete X horas antes
-  const horas=notifConfig.antecedencia;
-  const horasAntes=new Date(ini);
-  horasAntes.setHours(horasAntes.getHours()-horas);
-  if(horasAntes>agora){
-    const ms=horasAntes-agora;
-    setTimeout(()=>{
-      new Notification(`⏰ Plantão em ${horas}h`,{
-        body:`${p.locais?.nome||'Plantão'} às ${p.data_inicio.slice(11,16)}`,
-        icon:'/icon.png'
-      });
-    },ms);
-  }
-
-  // Lembrete de pagamento — 3 dias antes
-  if(notifConfig.pagamento){
-    const pgto=new Date(p.data_pagamento+'T08:00:00');
-    const tresDias=new Date(pgto);
-    tresDias.setDate(tresDias.getDate()-3);
-    if(tresDias>agora){
-      const ms=tresDias-agora;
-      setTimeout(()=>{
-        new Notification('💰 Pagamento em 3 dias',{
-          body:`R$ ${Number(p.valor).toLocaleString('pt-BR',{minimumFractionDigits:2})} — ${p.locais?.nome||'Plantão'}`,
-          icon:'/icon.png'
-        });
-      },ms);
-    }
-    // No dia do pagamento
-    if(pgto>agora){
-      const ms=pgto-agora;
-      setTimeout(()=>{
-        new Notification('📲 Pagamento hoje!',{
-          body:`R$ ${Number(p.valor).toLocaleString('pt-BR',{minimumFractionDigits:2})} — ${p.locais?.nome||'Plantão'}`,
-          icon:'/icon.png'
-        });
-      },ms);
-    }
-  }
-}
-
-function scheduleAllNotifications(){
-  if(notifPermission!=='granted') return;
-  plantoes.forEach(p=>scheduleNotificationsForPlantao(p));
-}
-
-
-  const tipo=document.getElementById('inp-recur-pgto-tipo').value;
-  document.getElementById('recur-pgto-fixo-wrap').style.display=tipo==='fixo'?'block':'none';
-}
-
-let confirmRecurOpt='este';
+// CONFIRM DELETE
 function selectConfirmOpt(opt){
   confirmRecurOpt=opt;
   ['este','futuros','todos'].forEach(o=>{
@@ -735,7 +676,6 @@ function selectConfirmOpt(opt){
 function confirmDelete(type,id,nome){
   const p=type==='plantao'?plantoes.find(x=>x.id===id):null;
   const temSerie=p&&p.recorrente_id;
-  document.getElementById('confirm-title').textContent='Excluir?';
   document.getElementById('confirm-msg').textContent=`"${nome}"`;
   document.getElementById('confirm-recur-opts').style.display=temSerie?'block':'none';
   if(temSerie){confirmRecurOpt='este';selectConfirmOpt('este');}
@@ -751,7 +691,6 @@ async function doDelete(type,id,p){
         await api('plantoes?recorrente_id=eq.'+p.recorrente_id,'DELETE');
         plantoes=plantoes.filter(x=>x.recorrente_id!==p.recorrente_id);
       } else {
-        // futuros: excluir este e todos com data_inicio >= este
         const dataBase=p.data_inicio.slice(0,10);
         const ids=plantoes.filter(x=>x.recorrente_id===p.recorrente_id&&x.data_inicio.slice(0,10)>=dataBase).map(x=>x.id);
         for(const xid of ids) await api('plantoes?id=eq.'+xid,'DELETE');
@@ -770,6 +709,7 @@ async function doDelete(type,id,p){
   renderCalendar();renderPanel();renderDash();
 }
 
+// EDIT
 function openEditPlantao(id){
   const p=plantoes.find(x=>x.id===id);if(!p) return;
   editingId=id;
@@ -822,6 +762,11 @@ function openAddModal(){
   document.getElementById('overlay-add').classList.add('open');
 }
 
+function toggleRecurPgto(){
+  const tipo=document.getElementById('inp-recur-pgto-tipo').value;
+  document.getElementById('recur-pgto-fixo-wrap').style.display=tipo==='fixo'?'block':'none';
+}
+
 function toggleRecur(){
   recurOn=!recurOn;
   document.getElementById('recur-switch').className='toggle'+(recurOn?' on':'');
@@ -858,14 +803,10 @@ function gerarDatasRecorrentes(iniStr,fimStr,pgtoStr,freq,meses){
   } else {
     const semana=parseInt(freq.replace('mensal',''));
     for(let i=1;i<=meses;i++){
-      const targetMonth=new Date(iniBase);targetMonth.setMonth(targetMonth.getMonth()+i);
+      const tm=new Date(iniBase);tm.setMonth(tm.getMonth()+i);
       let count=0,day=1;
-      while(count<semana){
-        const dt=new Date(targetMonth.getFullYear(),targetMonth.getMonth(),day);
-        if(dt.getDay()===dow) count++;
-        if(count<semana) day++;
-      }
-      const ini=new Date(targetMonth.getFullYear(),targetMonth.getMonth(),day,iniBase.getHours(),iniBase.getMinutes());
+      while(count<semana){const dt=new Date(tm.getFullYear(),tm.getMonth(),day);if(dt.getDay()===dow)count++;if(count<semana)day++;}
+      const ini=new Date(tm.getFullYear(),tm.getMonth(),day,iniBase.getHours(),iniBase.getMinutes());
       datas.push({ini,fim:new Date(ini.getTime()+diffMs),pgto:new Date(ini.getTime()+diffPgto)});
     }
   }
@@ -898,21 +839,18 @@ async function saveEvent(){
           const pgtoTipo=document.getElementById('inp-recur-pgto-tipo').value;
           const pgtoBase=document.getElementById('inp-recur-pgto-base').value;
           const extras=gerarDatasRecorrentes(ini,fim,pgto,freq,meses);
-          // gera um ID de série para agrupar todos
           const serieId=crypto.randomUUID();
-          // atualiza o primeiro plantão com o serieId
-          const primeiros=await api('plantoes?local_id=eq.'+localId+'&data_inicio=eq.'+encodeURIComponent(ini),'GET');
+          const primeiros=await api('plantoes?local_id=eq.'+localId+'&data_inicio=eq.'+encodeURIComponent(ini));
           if(primeiros&&primeiros.length) await api('plantoes?id=eq.'+primeiros[primeiros.length-1].id,'PATCH',{recorrente_id:serieId});
           for(const e of extras){
             let dataPgto;
             if(pgtoTipo==='fixo'&&pgtoBase){
-              // avança a data base pelo número de meses do plantão em relação ao primeiro
               const mesPlantao=e.ini.getMonth()+(e.ini.getFullYear()-new Date(ini).getFullYear())*12;
               const mesPrimeiro=new Date(ini).getMonth();
               const diff=mesPlantao-mesPrimeiro;
-              const baseDate=new Date(pgtoBase+'T12:00:00');
-              baseDate.setMonth(baseDate.getMonth()+diff);
-              dataPgto=fmtD(baseDate);
+              const bd=new Date(pgtoBase+'T12:00:00');
+              bd.setMonth(bd.getMonth()+diff);
+              dataPgto=fmtD(bd);
             } else {
               dataPgto=fmtD(e.pgto);
             }
@@ -928,11 +866,10 @@ async function saveEvent(){
       const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
       await api('eventos','POST',{titulo,data:ds,tipo,cor:eventoColor});
     }
-    await loadAll();
-    renderPanel();renderDash();
-    scheduleAllNotifications();
+    await loadAll();renderPanel();renderDash();
+    agendarTodas();
     closeModal('overlay-add');
-  }catch(e){console.error(e);}
+  } catch(e){console.error(e);}
   finally{btn.disabled=false;btn.textContent='Salvar';btn.style.opacity='1';}
 }
 
@@ -1027,32 +964,11 @@ function fmtMoney(v){return'R$ '+Number(v).toLocaleString('pt-BR',{minimumFracti
 function closeModal(id){document.getElementById(id).classList.remove('open');editingId=null;recurOn=false;}
 function closeIfOverlay(e,id){if(e.target.id===id)closeModal(id);}
 
-function renderConfigPage(){
-  const banner=document.getElementById('notif-permission-banner');
-  banner.style.display=notifPermission==='granted'?'none':'block';
-  document.getElementById('toggle-plantao').className='toggle'+(notifConfig.plantao?' on':'');
-  document.getElementById('toggle-pagamento').className='toggle'+(notifConfig.pagamento?' on':'');
-  document.getElementById('sel-antecedencia').value=notifConfig.antecedencia;
-}
-
-function toggleNotifConfig(key){
-  notifConfig[key]=!notifConfig[key];
-  saveNotifConfig();
-  renderConfigPage();
-}
-
-function changeAntecedencia(){
-  notifConfig.antecedencia=parseInt(document.getElementById('sel-antecedencia').value);
-  saveNotifConfig();
-}
-
-// Inicializa botão ano após DOM carregar
 window.addEventListener('DOMContentLoaded',()=>{
+  loadNotifCfg();
   document.getElementById('year-btn').addEventListener('click',openYearModal);
-  initNotifications().then(()=>scheduleAllNotifications());
+  loadAll().then(()=>agendarTodas());
 });
-
-loadAll();
 </script>
 </body>
 </html>
