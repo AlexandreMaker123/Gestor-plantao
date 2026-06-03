@@ -91,7 +91,8 @@ nav button svg{width:24px;height:24px}
 .edit-btn-dash{background:none;border:1.5px solid var(--border);border-radius:8px;width:28px;height:28px;cursor:pointer;color:var(--text3);font-size:13px;display:flex;align-items:center;justify-content:center;margin-left:4px;flex-shrink:0}
 .section-title{font-size:13px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin:18px 0 10px}
 .empty{text-align:center;color:var(--text3);padding:32px 0;font-size:14px}
-#page-locais{padding:0 16px 100px;overflow-y:auto;height:calc(100vh - 60px - env(safe-area-inset-bottom))}
+#page-config{padding:0 16px 100px;overflow-y:auto;height:calc(100vh - 60px - env(safe-area-inset-bottom))}
+#page-config .page-header{padding-top:calc(16px + env(safe-area-inset-top));margin-bottom:16px}
 #page-locais .page-header{padding-top:calc(16px + env(safe-area-inset-top));margin-bottom:16px}
 .local-item{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border-radius:12px;margin-bottom:8px}
 .local-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
@@ -187,7 +188,45 @@ nav button svg{width:24px;height:24px}
   <div id="dash-content"></div>
 </div>
 
-<div id="page-locais" class="page">
+<div id="page-config" class="page">
+  <div class="page-header"><h1>Configurações</h1></div>
+
+  <div class="section-title">🔔 Notificações</div>
+
+  <div id="notif-permission-banner" style="display:none;background:rgba(245,158,11,0.1);border:1.5px solid var(--yellow);border-radius:12px;padding:14px 16px;margin-bottom:16px">
+    <div style="font-size:14px;font-weight:600;color:var(--yellow);margin-bottom:4px">Permissão necessária</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:12px">Para receber notificações, autorize o acesso.</div>
+    <button class="btn btn-primary" style="margin:0" onclick="requestNotifPermission().then(renderConfigPage)">Autorizar notificações</button>
+  </div>
+
+  <div class="local-item" style="justify-content:space-between">
+    <div>
+      <div style="font-size:14px;font-weight:500">Lembretes de plantão</div>
+      <div style="font-size:12px;color:var(--text3)">1 dia antes e X horas antes</div>
+    </div>
+    <div class="toggle" id="toggle-plantao" onclick="toggleNotifConfig('plantao')"></div>
+  </div>
+
+  <div class="local-item" style="justify-content:space-between;margin-top:8px">
+    <div>
+      <div style="font-size:14px;font-weight:500">Lembretes de pagamento</div>
+      <div style="font-size:12px;color:var(--text3)">3 dias antes e no dia</div>
+    </div>
+    <div class="toggle" id="toggle-pagamento" onclick="toggleNotifConfig('pagamento')"></div>
+  </div>
+
+  <div class="form-group" style="margin-top:16px">
+    <label>Antecedência do lembrete</label>
+    <select id="sel-antecedencia" onchange="changeAntecedencia()">
+      <option value="1">1 hora antes</option>
+      <option value="2">2 horas antes</option>
+      <option value="4">4 horas antes</option>
+      <option value="8">8 horas antes</option>
+    </select>
+  </div>
+</div>
+
+
   <div class="page-header"><h1>Locais</h1></div>
   <button class="btn btn-primary" onclick="openLocalModal()" style="margin-bottom:20px">+ Adicionar Local</button>
   <div id="locais-list"></div>
@@ -205,6 +244,10 @@ nav button svg{width:24px;height:24px}
   <button onclick="showPage('locais',this)">
     <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
     Locais
+  </button>
+  <button onclick="showPage('config',this)">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    Config
   </button>
 </nav>
 
@@ -413,6 +456,7 @@ function showPage(name,btn){
   btn.classList.add('active');
   if(name==='dash') renderDash();
   if(name==='locais') renderLocais();
+  if(name==='config') renderConfigPage();
 }
 
 // YEAR MODAL
@@ -581,7 +625,100 @@ function renderPanel(){
   });
 }
 
-function toggleRecurPgto(){
+// NOTIFICAÇÕES
+let notifPermission='default';
+let notifConfig={plantao:true,pagamento:true,antecedencia:2};
+
+function loadNotifConfig(){
+  const saved=localStorage.getItem('notif_config');
+  if(saved) notifConfig=JSON.parse(saved);
+}
+
+function saveNotifConfig(){
+  localStorage.setItem('notif_config',JSON.stringify(notifConfig));
+}
+
+async function initNotifications(){
+  loadNotifConfig();
+  if(!('serviceWorker' in navigator)||!('Notification' in window)) return;
+  try{
+    await navigator.serviceWorker.register('/sw.js');
+    notifPermission=Notification.permission;
+    if(notifPermission==='default') await requestNotifPermission();
+  }catch(e){console.log('SW error:',e);}
+}
+
+async function requestNotifPermission(){
+  const result=await Notification.requestPermission();
+  notifPermission=result;
+  return result;
+}
+
+function scheduleNotificationsForPlantao(p){
+  if(!notifConfig.plantao||notifPermission!=='granted') return;
+  const ini=new Date(p.data_inicio);
+  const agora=new Date();
+
+  // Lembrete 1 dia antes
+  const umDiaAntes=new Date(ini);
+  umDiaAntes.setDate(umDiaAntes.getDate()-1);
+  if(umDiaAntes>agora){
+    const ms=umDiaAntes-agora;
+    setTimeout(()=>{
+      new Notification('🏥 Plantão amanhã',{
+        body:`${p.locais?.nome||'Plantão'} às ${p.data_inicio.slice(11,16)}`,
+        icon:'/icon.png'
+      });
+    },ms);
+  }
+
+  // Lembrete X horas antes
+  const horas=notifConfig.antecedencia;
+  const horasAntes=new Date(ini);
+  horasAntes.setHours(horasAntes.getHours()-horas);
+  if(horasAntes>agora){
+    const ms=horasAntes-agora;
+    setTimeout(()=>{
+      new Notification(`⏰ Plantão em ${horas}h`,{
+        body:`${p.locais?.nome||'Plantão'} às ${p.data_inicio.slice(11,16)}`,
+        icon:'/icon.png'
+      });
+    },ms);
+  }
+
+  // Lembrete de pagamento — 3 dias antes
+  if(notifConfig.pagamento){
+    const pgto=new Date(p.data_pagamento+'T08:00:00');
+    const tresDias=new Date(pgto);
+    tresDias.setDate(tresDias.getDate()-3);
+    if(tresDias>agora){
+      const ms=tresDias-agora;
+      setTimeout(()=>{
+        new Notification('💰 Pagamento em 3 dias',{
+          body:`R$ ${Number(p.valor).toLocaleString('pt-BR',{minimumFractionDigits:2})} — ${p.locais?.nome||'Plantão'}`,
+          icon:'/icon.png'
+        });
+      },ms);
+    }
+    // No dia do pagamento
+    if(pgto>agora){
+      const ms=pgto-agora;
+      setTimeout(()=>{
+        new Notification('📲 Pagamento hoje!',{
+          body:`R$ ${Number(p.valor).toLocaleString('pt-BR',{minimumFractionDigits:2})} — ${p.locais?.nome||'Plantão'}`,
+          icon:'/icon.png'
+        });
+      },ms);
+    }
+  }
+}
+
+function scheduleAllNotifications(){
+  if(notifPermission!=='granted') return;
+  plantoes.forEach(p=>scheduleNotificationsForPlantao(p));
+}
+
+
   const tipo=document.getElementById('inp-recur-pgto-tipo').value;
   document.getElementById('recur-pgto-fixo-wrap').style.display=tipo==='fixo'?'block':'none';
 }
@@ -791,7 +928,9 @@ async function saveEvent(){
       const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
       await api('eventos','POST',{titulo,data:ds,tipo,cor:eventoColor});
     }
-    await loadAll();renderPanel();renderDash();
+    await loadAll();
+    renderPanel();renderDash();
+    scheduleAllNotifications();
     closeModal('overlay-add');
   }catch(e){console.error(e);}
   finally{btn.disabled=false;btn.textContent='Salvar';btn.style.opacity='1';}
@@ -888,9 +1027,29 @@ function fmtMoney(v){return'R$ '+Number(v).toLocaleString('pt-BR',{minimumFracti
 function closeModal(id){document.getElementById(id).classList.remove('open');editingId=null;recurOn=false;}
 function closeIfOverlay(e,id){if(e.target.id===id)closeModal(id);}
 
+function renderConfigPage(){
+  const banner=document.getElementById('notif-permission-banner');
+  banner.style.display=notifPermission==='granted'?'none':'block';
+  document.getElementById('toggle-plantao').className='toggle'+(notifConfig.plantao?' on':'');
+  document.getElementById('toggle-pagamento').className='toggle'+(notifConfig.pagamento?' on':'');
+  document.getElementById('sel-antecedencia').value=notifConfig.antecedencia;
+}
+
+function toggleNotifConfig(key){
+  notifConfig[key]=!notifConfig[key];
+  saveNotifConfig();
+  renderConfigPage();
+}
+
+function changeAntecedencia(){
+  notifConfig.antecedencia=parseInt(document.getElementById('sel-antecedencia').value);
+  saveNotifConfig();
+}
+
 // Inicializa botão ano após DOM carregar
 window.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('year-btn').addEventListener('click',openYearModal);
+  initNotifications().then(()=>scheduleAllNotifications());
 });
 
 loadAll();
