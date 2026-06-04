@@ -483,6 +483,11 @@ function renderConfigPage(){
 
 function agendarNotificacoes(p){
   if(!('Notification' in window)||Notification.permission!=='granted') return;
+  // Verifica se já foi agendado
+  const chave='notif_agendado_'+p.id;
+  if(localStorage.getItem(chave)) return;
+  localStorage.setItem(chave,'1');
+
   const ini=new Date(p.data_inicio);
   const agora=new Date();
   if(notifCfg.plantao){
