@@ -223,14 +223,17 @@ nav button svg{width:22px;height:22px}
     <input type="number" id="inp-teto-cont" placeholder="400" step="10" onchange="salvarCfgCont()"/>
   </div>
   <div style="background:rgba(99,102,241,0.08);border:1px solid var(--border);border-radius:12px;padding:14px;margin-top:4px">
-    <div style="font-size:12px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Tabela DAS + INSS + IRRF (sem DMF)</div>
-    <div style="font-size:12px;color:var(--text3);line-height:1.8">
+    <div style="font-size:12px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Tabela DAS + INSS + IRPF</div>
+    <div style="font-size:12px;color:var(--text3);line-height:1.9">
+      <span style="color:var(--accent2);font-weight:600">DAS + INSS (sem IRPF — isento)</span><br>
       Até R$15.000 → 9,08%<br>
       R$15.001–16.000 → 9,41%<br>
       R$16.001–17.000 → 9,69%<br>
       R$17.001–18.000 → 9,95%<br>
       R$18.001–19.000 → 10,17%<br>
       R$19.001–20.000 → 10,38%<br>
+      <span style="color:var(--yellow);font-weight:600">⚠️ Acima de R$20.000 — IRPF começa a incidir</span><br>
+      <span style="color:var(--accent2);font-weight:600">DAS + INSS + IRPF</span><br>
       R$20.001–21.000 → 10,80%<br>
       R$21.001–22.000 → 11,18%<br>
       R$22.001–23.000 → 11,54%<br>
@@ -238,6 +241,7 @@ nav button svg{width:22px;height:22px}
       R$24.001–25.000 → 12,16%<br>
       R$25.001–26.000 → 12,43%<br>
       R$26.001–27.000 → 12,68%<br>
+      <span style="color:var(--yellow);font-weight:600">⚠️ Acima de R$27.000 — teto do INSS atingido</span><br>
       R$27.001–28.000 → 13,02%<br>
       R$28.001–29.000 → 13,36%<br>
       R$29.001–30.000 → 13,62%<br>
