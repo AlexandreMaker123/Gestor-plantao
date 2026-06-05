@@ -223,25 +223,25 @@ nav button svg{width:22px;height:22px}
     <input type="number" id="inp-teto-cont" placeholder="400" step="10" onchange="salvarCfgCont()"/>
   </div>
   <div style="background:rgba(99,102,241,0.08);border:1px solid var(--border);border-radius:12px;padding:14px;margin-top:4px">
-    <div style="font-size:12px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Tabela de alíquotas (Simples Nacional)</div>
+    <div style="font-size:12px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Tabela DAS + INSS + IRRF (sem DMF)</div>
     <div style="font-size:12px;color:var(--text3);line-height:1.8">
-      Até R$15.000 → 11,08%<br>
-      R$15.001–16.000 → 11,41%<br>
-      R$16.001–17.000 → 11,69%<br>
-      R$17.001–18.000 → 11,95%<br>
-      R$18.001–19.000 → 12,17%<br>
-      R$19.001–20.000 → 12,38%<br>
-      R$20.001–21.000 → 12,70%<br>
-      R$21.001–22.000 → 13,00%<br>
-      R$22.001–23.000 → 13,28%<br>
-      R$23.001–24.000 → 13,53%<br>
-      R$24.001–25.000 → 13,76%<br>
-      R$25.001–26.000 → 13,97%<br>
-      R$26.001–27.000 → 14,16%<br>
-      R$27.001–28.000 → 14,45%<br>
-      R$28.001–29.000 → 14,74%<br>
-      R$29.001–30.000 → 14,95%<br>
-      Acima R$30.000 → 14,95%
+      Até R$15.000 → 9,08%<br>
+      R$15.001–16.000 → 9,41%<br>
+      R$16.001–17.000 → 9,69%<br>
+      R$17.001–18.000 → 9,95%<br>
+      R$18.001–19.000 → 10,17%<br>
+      R$19.001–20.000 → 10,38%<br>
+      R$20.001–21.000 → 10,80%<br>
+      R$21.001–22.000 → 11,18%<br>
+      R$22.001–23.000 → 11,54%<br>
+      R$23.001–24.000 → 11,86%<br>
+      R$24.001–25.000 → 12,16%<br>
+      R$25.001–26.000 → 12,43%<br>
+      R$26.001–27.000 → 12,68%<br>
+      R$27.001–28.000 → 13,02%<br>
+      R$28.001–29.000 → 13,36%<br>
+      R$29.001–30.000 → 13,62%<br>
+      Acima R$30.000 → 13,62%
     </div>
   </div>
 </div>
@@ -514,12 +514,12 @@ function salvarCfgCont(){
 
 // TABELA ALÍQUOTAS
 const TABELA_ALIQ=[
-  {max:15000,pct:11.08},{max:16000,pct:11.41},{max:17000,pct:11.69},
-  {max:18000,pct:11.95},{max:19000,pct:12.17},{max:20000,pct:12.38},
-  {max:21000,pct:12.70},{max:22000,pct:13.00},{max:23000,pct:13.28},
-  {max:24000,pct:13.53},{max:25000,pct:13.76},{max:26000,pct:13.97},
-  {max:27000,pct:14.16},{max:28000,pct:14.45},{max:29000,pct:14.74},
-  {max:30000,pct:14.95},{max:Infinity,pct:14.95}
+  {max:15000,pct:9.08},{max:16000,pct:9.41},{max:17000,pct:9.69},
+  {max:18000,pct:9.95},{max:19000,pct:10.17},{max:20000,pct:10.38},
+  {max:21000,pct:10.80},{max:22000,pct:11.18},{max:23000,pct:11.54},
+  {max:24000,pct:11.86},{max:25000,pct:12.16},{max:26000,pct:12.43},
+  {max:27000,pct:12.68},{max:28000,pct:13.02},{max:29000,pct:13.36},
+  {max:30000,pct:13.62},{max:Infinity,pct:13.62}
 ];
 
 function getAliquota(faturamento){
@@ -543,12 +543,15 @@ function calcularCustosMes(ano,mes){
 
   const faturamento=tributaveis.reduce((s,p)=>s+Number(p.valor),0);
   const aliq=getAliquota(faturamento);
-  const custoTotal=faturamento*(aliq/100);
 
-  // Taxa contadora: 2% do fat, máx teto
+  // Dia 15 — Contadora (DMF): taxa configurável com teto
   const taxaCont=Math.min(faturamento*(cfgCont.taxa/100),cfgCont.teto);
-  // DAS+INSS: restante
-  const dasInss=custoTotal-taxaCont;
+
+  // Dia 20 — DAS + INSS + IRRF: direto da tabela (sem DMF)
+  const dasInss=faturamento*(aliq/100);
+
+  // Total geral
+  const custoTotal=taxaCont+dasInss;
 
   return {
     faturamento,aliq,custoTotal,taxaCont,dasInss,
