@@ -959,10 +959,10 @@ async function saveEvent(){
       const valor=parseFloat(document.getElementById('inp-valor').value);
       const descricao=document.getElementById('inp-descricao').value.trim();
       const tributavel=document.getElementById('inp-tributavel').value==='true';
-      const mesFatOffset=parseInt(document.getElementById('inp-mes-fat').value);
+      const mesFatOffset=parseInt(document.getElementById('inp-mes-fat').value)||1;
       const iniDate=new Date(ini);
       iniDate.setMonth(iniDate.getMonth()+mesFatOffset);
-      const mesFat=fmtD(iniDate).slice(0,8)+'01';
+      const mesFat=iniDate.getFullYear()+'-'+String(iniDate.getMonth()+1).padStart(2,'0')+'-01';
       if(!localId||!ini||!fim||!pgto||isNaN(valor)){btn.disabled=false;btn.textContent='Salvar';btn.style.opacity='1';return alert('Preencha todos os campos!');}
       if(editingId){
         await api('plantoes?id=eq.'+editingId,'PATCH',{local_id:localId,data_inicio:ini,data_fim:fim,data_pagamento:pgto,valor,descricao,tributavel,mes_faturamento:mesFat});
