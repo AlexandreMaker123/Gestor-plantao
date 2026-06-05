@@ -204,8 +204,37 @@ nav button svg{width:22px;height:22px}
     <div><div style="font-size:14px;font-weight:500">Lembretes de pagamento</div><div style="font-size:12px;color:var(--text3)">3 dias antes e no dia</div></div>
     <div class="toggle" id="tog-pagamento" onclick="toggleCfg('pagamento')"></div>
   </div>
-  <div class="form-group" style="margin-top:16px">
-    <label>Antecedência do lembrete</label>
+  <div class="section-title" style="margin-top:24px">💰 Contabilidade</div>
+  <div class="form-group">
+    <label>Taxa da contadora (%)</label>
+    <input type="number" id="inp-taxa-cont" placeholder="2" step="0.1" onchange="salvarCfgCont()"/>
+  </div>
+  <div class="form-group">
+    <label>Teto máximo da contadora (R$)</label>
+    <input type="number" id="inp-teto-cont" placeholder="400" step="10" onchange="salvarCfgCont()"/>
+  </div>
+  <div style="background:rgba(99,102,241,0.08);border:1px solid var(--border);border-radius:12px;padding:14px;margin-top:4px">
+    <div style="font-size:12px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Tabela de alíquotas (Simples Nacional)</div>
+    <div style="font-size:12px;color:var(--text3);line-height:1.8">
+      Até R$15.000 → 11,08%<br>
+      R$15.001–16.000 → 11,41%<br>
+      R$16.001–17.000 → 11,69%<br>
+      R$17.001–18.000 → 11,95%<br>
+      R$18.001–19.000 → 12,17%<br>
+      R$19.001–20.000 → 12,38%<br>
+      R$20.001–21.000 → 12,70%<br>
+      R$21.001–22.000 → 13,00%<br>
+      R$22.001–23.000 → 13,28%<br>
+      R$23.001–24.000 → 13,53%<br>
+      R$24.001–25.000 → 13,76%<br>
+      R$25.001–26.000 → 13,97%<br>
+      R$26.001–27.000 → 14,16%<br>
+      R$27.001–28.000 → 14,45%<br>
+      R$28.001–29.000 → 14,74%<br>
+      R$29.001–30.000 → 14,95%<br>
+      Acima R$30.000 → 14,95%
+    </div>
+  </div>
     <select id="sel-antec" onchange="salvarCfg()">
       <option value="1">1 hora antes</option>
       <option value="2">2 horas antes</option>
@@ -282,8 +311,21 @@ nav button svg{width:22px;height:22px}
         <div class="form-group"><label>Data Pagamento</label><input type="date" id="inp-pgto"/></div>
         <div class="form-group"><label>Valor (R$)</label><input type="number" id="inp-valor" placeholder="0,00" step="0.01"/></div>
       </div>
+      <div class="form-group">
+        <label>Custo Tributável?</label>
+        <select id="inp-tributavel">
+          <option value="true">✅ Sim — PJ (gera custo)</option>
+          <option value="false">❌ Não — PF / PJotão</option>
+        </select>
+      </div>
+      <div class="form-group" id="wrap-mes-fat">
+        <label>Mês de faturamento da nota</label>
+        <select id="inp-mes-fat">
+          <option value="1">Mês seguinte ao plantão (padrão)</option>
+          <option value="0">Mesmo mês do plantão</option>
+        </select>
+      </div>
       <div class="form-group"><label>Descrição / Observação</label><input type="text" id="inp-descricao" placeholder="Ex: Base 552, escala extra..."/></div>
-      <div class="recur-toggle" id="recur-toggle" onclick="toggleRecur()">
         <span class="recur-label">🔁 Plantão recorrente</span>
         <div class="toggle" id="recur-switch"></div>
       </div>
@@ -446,7 +488,66 @@ function showPage(name,btn){
   if(name==='config') renderConfigPage();
 }
 
-// NOTIFICAÇÕES
+// CONFIGURAÇÕES CONTABILIDADE
+let cfgCont={taxa:2,teto:400};
+
+function loadCfgCont(){
+  const s=localStorage.getItem('cfg_cont');
+  if(s) cfgCont=JSON.parse(s);
+}
+
+function salvarCfgCont(){
+  cfgCont.taxa=parseFloat(document.getElementById('inp-taxa-cont').value)||2;
+  cfgCont.teto=parseFloat(document.getElementById('inp-teto-cont').value)||400;
+  localStorage.setItem('cfg_cont',JSON.stringify(cfgCont));
+}
+
+// TABELA ALÍQUOTAS
+const TABELA_ALIQ=[
+  {max:15000,pct:11.08},{max:16000,pct:11.41},{max:17000,pct:11.69},
+  {max:18000,pct:11.95},{max:19000,pct:12.17},{max:20000,pct:12.38},
+  {max:21000,pct:12.70},{max:22000,pct:13.00},{max:23000,pct:13.28},
+  {max:24000,pct:13.53},{max:25000,pct:13.76},{max:26000,pct:13.97},
+  {max:27000,pct:14.16},{max:28000,pct:14.45},{max:29000,pct:14.74},
+  {max:30000,pct:14.95},{max:Infinity,pct:14.95}
+];
+
+function getAliquota(faturamento){
+  return (TABELA_ALIQ.find(f=>faturamento<=f.max)||TABELA_ALIQ[TABELA_ALIQ.length-1]).pct;
+}
+
+function calcularCustosMes(ano,mes){
+  // Custos vencem no mês+2 em relação ao mês de competência
+  // Então para calcular custos que vencem em (ano,mes), precisamos olhar competência de 2 meses atrás
+  let compMes=mes-2,compAno=ano;
+  if(compMes<0){compMes+=12;compAno--;}
+  const ym=`${compAno}-${String(compMes+1).padStart(2,'0')}`;
+
+  // Plantões tributáveis do mês de competência
+  const tributaveis=plantoes.filter(p=>{
+    if(p.tributavel===false) return false;
+    return p.data_inicio.slice(0,7)===ym;
+  });
+
+  if(!tributaveis.length) return null;
+
+  const faturamento=tributaveis.reduce((s,p)=>s+Number(p.valor),0);
+  const aliq=getAliquota(faturamento);
+  const custoTotal=faturamento*(aliq/100);
+
+  // Taxa contadora: 2% do fat, máx teto
+  const taxaCont=Math.min(faturamento*(cfgCont.taxa/100),cfgCont.teto);
+  // DAS+INSS: restante
+  const dasInss=custoTotal-taxaCont;
+
+  return {
+    faturamento,aliq,custoTotal,taxaCont,dasInss,
+    compMes,compAno,
+    refLabel:`${MONTHS[compMes]} ${compAno}`
+  };
+}
+
+
 function loadNotifCfg(){
   const s=localStorage.getItem('notif_cfg');
   if(s) notifCfg=JSON.parse(s);
@@ -473,12 +574,19 @@ async function pedirPermissao(){
   renderConfigPage();
 }
 
+function toggleAviso(){
+  const el=document.getElementById('aviso-estimativa');
+  if(el) el.style.display=el.style.display==='none'?'block':'none';
+}
+
 function renderConfigPage(){
   const perm='Notification' in window?Notification.permission:'denied';
   document.getElementById('notif-banner').style.display=perm==='granted'?'none':'block';
   document.getElementById('tog-plantao').className='toggle'+(notifCfg.plantao?' on':'');
   document.getElementById('tog-pagamento').className='toggle'+(notifCfg.pagamento?' on':'');
   document.getElementById('sel-antec').value=notifCfg.antecedencia;
+  document.getElementById('inp-taxa-cont').value=cfgCont.taxa;
+  document.getElementById('inp-teto-cont').value=cfgCont.teto;
 }
 
 function agendarNotificacoes(p){
@@ -833,11 +941,16 @@ async function saveEvent(){
       const pgto=document.getElementById('inp-pgto').value;
       const valor=parseFloat(document.getElementById('inp-valor').value);
       const descricao=document.getElementById('inp-descricao').value.trim();
+      const tributavel=document.getElementById('inp-tributavel').value==='true';
+      const mesFatOffset=parseInt(document.getElementById('inp-mes-fat').value);
+      const iniDate=new Date(ini);
+      iniDate.setMonth(iniDate.getMonth()+mesFatOffset);
+      const mesFat=fmtD(iniDate).slice(0,8)+'01';
       if(!localId||!ini||!fim||!pgto||isNaN(valor)){btn.disabled=false;btn.textContent='Salvar';btn.style.opacity='1';return alert('Preencha todos os campos!');}
       if(editingId){
-        await api('plantoes?id=eq.'+editingId,'PATCH',{local_id:localId,data_inicio:ini,data_fim:fim,data_pagamento:pgto,valor,descricao});
+        await api('plantoes?id=eq.'+editingId,'PATCH',{local_id:localId,data_inicio:ini,data_fim:fim,data_pagamento:pgto,valor,descricao,tributavel,mes_faturamento:mesFat});
       } else {
-        await api('plantoes','POST',{local_id:localId,data_inicio:ini,data_fim:fim,data_pagamento:pgto,valor,descricao});
+        await api('plantoes','POST',{local_id:localId,data_inicio:ini,data_fim:fim,data_pagamento:pgto,valor,descricao,tributavel,mes_faturamento:mesFat});
         if(recurOn){
           const freq=document.getElementById('inp-recur-freq').value;
           const meses=parseInt(document.getElementById('inp-recur-meses').value);
@@ -925,6 +1038,58 @@ function renderDash(){
   if(aRec.length){const t=document.createElement('div');t.className='section-title';t.textContent='⏳ Aguardando Pagamento';c.appendChild(t);aRec.forEach(p=>c.appendChild(makeDashItem(p)));}
   if(rec.length){const t=document.createElement('div');t.className='section-title';t.textContent='✅ Já Recebidos';c.appendChild(t);rec.forEach(p=>c.appendChild(makeDashItem(p)));}
   if(!doMes.length){const e=document.createElement('div');e.className='empty';e.textContent='Nenhum pagamento previsto para este mês';c.appendChild(e);}
+
+  // CUSTOS DO MÊS
+  const custos=calcularCustosMes(dashYear,dashMonth);
+  if(custos){
+    const sec=document.createElement('div');
+    sec.innerHTML=`
+      <div class="section-title" style="display:flex;align-items:center;gap:8px">
+        📤 CUSTOS DO MÊS
+        <span id="info-btn" style="background:var(--bg3);border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;color:var(--text2)" onclick="toggleAviso()">i</span>
+      </div>
+      <div id="aviso-estimativa" style="display:none;background:rgba(245,158,11,0.08);border:1px solid var(--yellow);border-radius:12px;padding:12px;margin-bottom:12px;font-size:12px;color:var(--text2);line-height:1.6">
+        ⚠️ <strong>Estimativa de alta precisão.</strong> Devido à regra do RBT12 do Simples Nacional, meses atípicos podem gerar variação de 1% a 3% em relação ao boleto final.
+      </div>
+      <div style="background:var(--bg3);border-radius:12px;padding:4px 0;margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border)">
+          <div>
+            <div style="font-size:13px;font-weight:600">Contadora</div>
+            <div style="font-size:11px;color:var(--text3)">Dia 15 — ref. ${custos.refLabel}</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:14px;font-weight:700;color:var(--red)">−${fmtMoney(custos.taxaCont)}</div>
+            <div style="font-size:11px;color:var(--text3)">${cfgCont.taxa}% s/ fat.</div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:10px 14px">
+          <div>
+            <div style="font-size:13px;font-weight:600">DAS + INSS</div>
+            <div style="font-size:11px;color:var(--text3)">Dia 20 — ref. ${custos.refLabel}</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:14px;font-weight:700;color:var(--red)">−${fmtMoney(custos.dasInss)}</div>
+            <div style="font-size:11px;color:var(--text3)">${custos.aliq}% alíquota</div>
+          </div>
+        </div>
+      </div>
+      <div style="background:rgba(99,102,241,0.1);border:1.5px solid var(--accent);border-radius:12px;padding:14px;margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+          <span style="font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px">Faturamento ref.</span>
+          <span style="font-size:14px;font-weight:600">${fmtMoney(custos.faturamento)}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+          <span style="font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px">Total custos</span>
+          <span style="font-size:14px;font-weight:600;color:var(--red)">−${fmtMoney(custos.custoTotal)}</span>
+        </div>
+        <div style="height:1px;background:var(--border);margin:8px 0"></div>
+        <div style="display:flex;justify-content:space-between">
+          <span style="font-size:13px;font-weight:700">Líquido estimado</span>
+          <span style="font-size:18px;font-weight:700;color:var(--green)">${fmtMoney(custos.faturamento-custos.custoTotal)}</span>
+        </div>
+      </div>`;
+    c.appendChild(sec);
+  }
 }
 
 function makeDashItem(p){
@@ -971,6 +1136,7 @@ function closeIfOverlay(e,id){if(e.target.id===id)closeModal(id);}
 
 window.addEventListener('DOMContentLoaded',()=>{
   loadNotifCfg();
+  loadCfgCont();
   document.getElementById('year-btn').addEventListener('click',openYearModal);
   loadAll().then(()=>agendarTodas());
 });
