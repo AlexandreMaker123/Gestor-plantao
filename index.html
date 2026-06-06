@@ -127,8 +127,6 @@ nav button svg{width:22px;height:22px}
 .toggle.on::after{transform:translateX(20px)}
 .filter-option{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg3);border-radius:12px;margin-bottom:8px;cursor:pointer;transition:all .2s}
 .filter-option.selected{background:rgba(99,102,241,0.15);border:1.5px solid var(--accent)}
-.filter-option-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
-.filter-option-name{flex:1;font-size:15px}
 .confirm-box{background:var(--bg2);border-radius:24px 24px 0 0;padding:28px 24px;padding-bottom:calc(28px + env(safe-area-inset-bottom));width:100%;animation:slideUp .3s ease}
 .confirm-title{font-size:18px;font-weight:600;margin-bottom:8px;text-align:center}
 .confirm-sub{font-size:14px;color:var(--text2);text-align:center;margin-bottom:16px}
@@ -249,14 +247,6 @@ nav button svg{width:22px;height:22px}
     </div>
   </div>
 </div>
-    <select id="sel-antec" onchange="salvarCfg()">
-      <option value="1">1 hora antes</option>
-      <option value="2">2 horas antes</option>
-      <option value="4">4 horas antes</option>
-      <option value="8">8 horas antes</option>
-    </select>
-  </div>
-</div>
 
 <nav>
   <button class="active" onclick="showPage('cal',this)">
@@ -325,21 +315,22 @@ nav button svg{width:22px;height:22px}
         <div class="form-group"><label>Data Pagamento</label><input type="date" id="inp-pgto"/></div>
         <div class="form-group"><label>Valor (R$)</label><input type="number" id="inp-valor" placeholder="0,00" step="0.01"/></div>
       </div>
+      <div class="form-group"><label>Descrição / Observação</label><input type="text" id="inp-descricao" placeholder="Ex: Base 552, escala extra..."/></div>
       <div class="form-group">
-        <label>Custo Tributável?</label>
+        <label>Custo tributável?</label>
         <select id="inp-tributavel">
           <option value="true">✅ Sim — PJ (gera custo)</option>
           <option value="false">❌ Não — PF / PJotão</option>
         </select>
       </div>
-      <div class="form-group" id="wrap-mes-fat">
+      <div class="form-group">
         <label>Mês de faturamento da nota</label>
         <select id="inp-mes-fat">
           <option value="1">Mês seguinte ao plantão (padrão)</option>
           <option value="0">Mesmo mês do plantão</option>
         </select>
       </div>
-      <div class="form-group"><label>Descrição / Observação</label><input type="text" id="inp-descricao" placeholder="Ex: Base 552, escala extra..."/></div>
+      <div class="recur-toggle" id="recur-toggle" onclick="toggleRecur()">
         <span class="recur-label">🔁 Plantão recorrente</span>
         <div class="toggle" id="recur-switch"></div>
       </div>
@@ -468,9 +459,23 @@ let editingId=null,recurOn=false;
 let calFilter='todos',dashFilter='todos';
 let confirmRecurOpt='este';
 let notifCfg={plantao:true,pagamento:true,antecedencia:2};
+let cfgCont={taxa:2,teto:400};
 
 const MONTHS=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const MONTHS_SHORT=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+const TABELA_ALIQ=[
+  {max:15000,pct:9.08},{max:16000,pct:9.41},{max:17000,pct:9.69},
+  {max:18000,pct:9.95},{max:19000,pct:10.17},{max:20000,pct:10.38},
+  {max:21000,pct:10.80},{max:22000,pct:11.18},{max:23000,pct:11.54},
+  {max:24000,pct:11.86},{max:25000,pct:12.16},{max:26000,pct:12.43},
+  {max:27000,pct:12.68},{max:28000,pct:13.02},{max:29000,pct:13.36},
+  {max:30000,pct:13.62},{max:Infinity,pct:13.62}
+];
+
+function getAliquota(fat){
+  return (TABELA_ALIQ.find(f=>fat<=f.max)||TABELA_ALIQ[TABELA_ALIQ.length-1]).pct;
+}
 
 // API
 async function api(path,method='GET',body=null){
@@ -502,99 +507,18 @@ function showPage(name,btn){
   if(name==='config') renderConfigPage();
 }
 
-// CONFIGURAÇÕES CONTABILIDADE
-let cfgCont={taxa:2,teto:400};
-
-function loadCfgCont(){
-  const s=localStorage.getItem('cfg_cont');
-  if(s) cfgCont=JSON.parse(s);
-}
-
+// CONFIGS
+function loadNotifCfg(){const s=localStorage.getItem('notif_cfg');if(s) notifCfg=JSON.parse(s);}
+function saveNotifCfgLocal(){localStorage.setItem('notif_cfg',JSON.stringify(notifCfg));}
+function loadCfgCont(){const s=localStorage.getItem('cfg_cont');if(s) cfgCont=JSON.parse(s);}
 function salvarCfgCont(){
   cfgCont.taxa=parseFloat(document.getElementById('inp-taxa-cont').value)||2;
   cfgCont.teto=parseFloat(document.getElementById('inp-teto-cont').value)||400;
   localStorage.setItem('cfg_cont',JSON.stringify(cfgCont));
 }
-
-// TABELA ALÍQUOTAS
-const TABELA_ALIQ=[
-  {max:15000,pct:9.08},{max:16000,pct:9.41},{max:17000,pct:9.69},
-  {max:18000,pct:9.95},{max:19000,pct:10.17},{max:20000,pct:10.38},
-  {max:21000,pct:10.80},{max:22000,pct:11.18},{max:23000,pct:11.54},
-  {max:24000,pct:11.86},{max:25000,pct:12.16},{max:26000,pct:12.43},
-  {max:27000,pct:12.68},{max:28000,pct:13.02},{max:29000,pct:13.36},
-  {max:30000,pct:13.62},{max:Infinity,pct:13.62}
-];
-
-function getAliquota(faturamento){
-  return (TABELA_ALIQ.find(f=>faturamento<=f.max)||TABELA_ALIQ[TABELA_ALIQ.length-1]).pct;
-}
-
-function calcularCustosMes(ano,mes){
-  // Custos vencem no mês+2 em relação ao mês de competência
-  // Então para calcular custos que vencem em (ano,mes), precisamos olhar competência de 2 meses atrás
-  let compMes=mes-2,compAno=ano;
-  if(compMes<0){compMes+=12;compAno--;}
-  const ym=`${compAno}-${String(compMes+1).padStart(2,'0')}`;
-
-  // Plantões tributáveis do mês de competência
-  const tributaveis=plantoes.filter(p=>{
-    if(p.tributavel===false) return false;
-    return p.data_inicio.slice(0,7)===ym;
-  });
-
-  if(!tributaveis.length) return null;
-
-  const faturamento=tributaveis.reduce((s,p)=>s+Number(p.valor),0);
-  const aliq=getAliquota(faturamento);
-
-  // Dia 15 — Contadora (DMF): taxa configurável com teto
-  const taxaCont=Math.min(faturamento*(cfgCont.taxa/100),cfgCont.teto);
-
-  // Dia 20 — DAS + INSS + IRRF: direto da tabela (sem DMF)
-  const dasInss=faturamento*(aliq/100);
-
-  // Total geral
-  const custoTotal=taxaCont+dasInss;
-
-  return {
-    faturamento,aliq,custoTotal,taxaCont,dasInss,
-    compMes,compAno,
-    refLabel:`${MONTHS[compMes]} ${compAno}`
-  };
-}
-
-
-function loadNotifCfg(){
-  const s=localStorage.getItem('notif_cfg');
-  if(s) notifCfg=JSON.parse(s);
-}
-
-function saveNotifCfgLocal(){
-  localStorage.setItem('notif_cfg',JSON.stringify(notifCfg));
-}
-
-function toggleCfg(key){
-  notifCfg[key]=!notifCfg[key];
-  saveNotifCfgLocal();
-  renderConfigPage();
-}
-
-function salvarCfg(){
-  notifCfg.antecedencia=parseInt(document.getElementById('sel-antec').value);
-  saveNotifCfgLocal();
-}
-
-async function pedirPermissao(){
-  if(!('Notification' in window)) return;
-  await Notification.requestPermission();
-  renderConfigPage();
-}
-
-function toggleAviso(){
-  const el=document.getElementById('aviso-estimativa');
-  if(el) el.style.display=el.style.display==='none'?'block':'none';
-}
+function toggleCfg(key){notifCfg[key]=!notifCfg[key];saveNotifCfgLocal();renderConfigPage();}
+function salvarCfg(){notifCfg.antecedencia=parseInt(document.getElementById('sel-antec').value);saveNotifCfgLocal();}
+async function pedirPermissao(){if(!('Notification' in window)) return;await Notification.requestPermission();renderConfigPage();}
 
 function renderConfigPage(){
   const perm='Notification' in window?Notification.permission:'denied';
@@ -606,13 +530,12 @@ function renderConfigPage(){
   document.getElementById('inp-teto-cont').value=cfgCont.teto;
 }
 
+// NOTIFICAÇÕES
 function agendarNotificacoes(p){
   if(!('Notification' in window)||Notification.permission!=='granted') return;
-  // Verifica se já foi agendado
-  const chave='notif_agendado_'+p.id;
+  const chave='notif_ag_'+p.id;
   if(localStorage.getItem(chave)) return;
   localStorage.setItem(chave,'1');
-
   const ini=new Date(p.data_inicio);
   const agora=new Date();
   if(notifCfg.plantao){
@@ -624,13 +547,29 @@ function agendarNotificacoes(p){
   if(notifCfg.pagamento){
     const pgto=new Date(p.data_pagamento+'T08:00:00');
     const tres=new Date(pgto);tres.setDate(tres.getDate()-3);
-    if(tres>agora) setTimeout(()=>new Notification('💰 Pagamento em 3 dias',{body:`R$ ${Number(p.valor).toLocaleString('pt-BR',{minimumFractionDigits:2})} — ${p.locais?.nome||''}`,icon:'/icon.png'}),tres-agora);
-    if(pgto>agora) setTimeout(()=>new Notification('📲 Pagamento hoje!',{body:`R$ ${Number(p.valor).toLocaleString('pt-BR',{minimumFractionDigits:2})} — ${p.locais?.nome||''}`,icon:'/icon.png'}),pgto-agora);
+    if(tres>agora) setTimeout(()=>new Notification('💰 Pagamento em 3 dias',{body:`${fmtMoney(p.valor)} — ${p.locais?.nome||''}`,icon:'/icon.png'}),tres-agora);
+    if(pgto>agora) setTimeout(()=>new Notification('📲 Pagamento hoje!',{body:`${fmtMoney(p.valor)} — ${p.locais?.nome||''}`,icon:'/icon.png'}),pgto-agora);
   }
 }
+function agendarTodas(){if('Notification' in window&&Notification.permission==='granted') plantoes.forEach(p=>agendarNotificacoes(p));}
 
-function agendarTodas(){
-  if('Notification' in window&&Notification.permission==='granted') plantoes.forEach(p=>agendarNotificacoes(p));
+// CUSTOS
+function calcularCustosMes(ano,mes){
+  // Custos vencem no mês exibido — competência é 2 meses antes
+  let compMes=mes-2,compAno=ano;
+  if(compMes<0){compMes+=12;compAno--;}
+  const ym=`${compAno}-${String(compMes+1).padStart(2,'0')}`;
+  const tributaveis=plantoes.filter(p=>{
+    if(p.tributavel===false) return false;
+    return p.data_inicio.slice(0,7)===ym;
+  });
+  if(!tributaveis.length) return null;
+  const faturamento=tributaveis.reduce((s,p)=>s+Number(p.valor),0);
+  const aliq=getAliquota(faturamento);
+  const taxaCont=Math.min(faturamento*(cfgCont.taxa/100),cfgCont.teto);
+  const dasInss=faturamento*(aliq/100);
+  const custoTotal=taxaCont+dasInss;
+  return {faturamento,aliq,custoTotal,taxaCont,dasInss,compMes,compAno,refLabel:`${MONTHS[compMes]} ${compAno}`};
 }
 
 // YEAR
@@ -639,17 +578,14 @@ function openYearModal(){
   renderYearModal();
   document.getElementById('overlay-year').classList.add('open');
 }
-
 function changeYearView(d){
   yearView+=d;
   document.getElementById('year-label').textContent=yearView;
   document.getElementById('year-btn').textContent='📊 '+yearView;
   renderYearModal();
 }
-
 function renderYearModal(){
-  const container=document.getElementById('year-months');
-  container.innerHTML='';
+  const container=document.getElementById('year-months');container.innerHTML='';
   let totalAno=0,recAno=0;
   const totals=Array.from({length:12},(_,i)=>{
     const ym=`${yearView}-${String(i+1).padStart(2,'0')}`;
@@ -663,8 +599,7 @@ function renderYearModal(){
     totalAno+=total;recAno+=recebido;
     const pct=Math.round((total/maxVal)*100);
     const pctRec=total>0?Math.round((recebido/total)*100):0;
-    const row=document.createElement('div');
-    row.className='year-month-row';
+    const row=document.createElement('div');row.className='year-month-row';
     row.innerHTML=`
       <div style="display:flex;align-items:center;gap:8px">
         <span style="font-size:13px;font-weight:600;width:36px;color:var(--text)">${MONTHS_SHORT[i]}</span>
@@ -685,13 +620,12 @@ function renderYearModal(){
 // FILTER
 function openFilterModal(ctx){
   const curFilter=ctx==='cal'?calFilter:dashFilter;
-  const list=document.getElementById('filter-options-list');
-  list.innerHTML='';
+  const list=document.getElementById('filter-options-list');list.innerHTML='';
   const opts=[{id:'todos',label:'Todos os locais',cor:'#6366f1'},...locais.map(l=>({id:l.id,label:l.nome,cor:l.cor}))];
   opts.forEach(opt=>{
     const el=document.createElement('div');
     el.className='filter-option'+(curFilter===opt.id?' selected':'');
-    el.innerHTML=`<div class="filter-option-dot" style="background:${opt.cor}"></div><span class="filter-option-name">${opt.label}</span>${curFilter===opt.id?'<span style="color:var(--accent2)">✓</span>':''}`;
+    el.innerHTML=`<div style="width:12px;height:12px;border-radius:50%;background:${opt.cor};flex-shrink:0"></div><span style="flex:1;font-size:15px">${opt.label}</span>${curFilter===opt.id?'<span style="color:var(--accent2)">✓</span>':''}`;
     el.onclick=()=>{
       if(ctx==='cal'){calFilter=opt.id;updateFilterBtn('cal-filter-btn',opt.id,opt.label);}
       else{dashFilter=opt.id;updateFilterBtn('dash-filter-btn',opt.id,opt.label);}
@@ -703,7 +637,6 @@ function openFilterModal(ctx){
   });
   document.getElementById('overlay-filter').classList.add('open');
 }
-
 function updateFilterBtn(btnId,filterId,label){
   const btn=document.getElementById(btnId);
   if(filterId==='todos'){btn.textContent='⚙️ Filtro';btn.classList.remove('filtered');}
@@ -717,7 +650,6 @@ function changeMonth(d){
   if(curMonth<0){curMonth=11;curYear--;}
   selectedDate=null;renderCalendar();renderPanel();
 }
-
 function renderCalendar(){
   document.getElementById('month-label').textContent=MONTHS[curMonth]+' '+curYear;
   const grid=document.getElementById('days-grid');grid.innerHTML='';
@@ -734,7 +666,6 @@ function renderCalendar(){
   const total=first+dim,next=total%7===0?0:7-total%7;
   for(let d=1;d<=next;d++){const m=curMonth+1>11?0:curMonth+1,y=curMonth+1>11?curYear+1:curYear;grid.appendChild(makeDay(d,m,y,true));}
 }
-
 function makeDay(d,m,y,other,isToday,isSel){
   const el=document.createElement('div');
   el.className='day'+(other?' other-month':'')+(isToday?' today':'')+(isSel?' selected':'');
@@ -749,7 +680,6 @@ function makeDay(d,m,y,other,isToday,isSel){
   if(!other) el.onclick=()=>selectDay(d,m,y);
   return el;
 }
-
 function selectDay(d,m,y){selectedDate={d,m,y};renderCalendar();renderPanel();}
 
 function renderPanel(){
@@ -802,7 +732,6 @@ function selectConfirmOpt(opt){
     document.getElementById('copt-'+o+'-check').style.display=o===opt?'inline':'none';
   });
 }
-
 function confirmDelete(type,id,nome){
   const p=type==='plantao'?plantoes.find(x=>x.id===id):null;
   const temSerie=p&&p.recorrente_id;
@@ -812,7 +741,6 @@ function confirmDelete(type,id,nome){
   document.getElementById('confirm-yes').onclick=()=>doDelete(type,id,p);
   document.getElementById('overlay-confirm').classList.add('open');
 }
-
 async function doDelete(type,id,p){
   closeModal('overlay-confirm');
   if(type==='plantao'){
@@ -853,6 +781,8 @@ function openEditPlantao(id){
   document.getElementById('inp-pgto').value=p.data_pagamento;
   document.getElementById('inp-valor').value=p.valor;
   document.getElementById('inp-descricao').value=p.descricao||'';
+  document.getElementById('inp-tributavel').value=p.tributavel===false?'false':'true';
+  document.getElementById('inp-mes-fat').value='1';
   document.getElementById('type-sel-row').style.display='none';
   document.getElementById('recur-toggle').style.display='none';
   document.getElementById('recur-options').style.display='none';
@@ -860,14 +790,12 @@ function openEditPlantao(id){
   setType('plantao');
   document.getElementById('overlay-add').classList.add('open');
 }
-
 function openEditFromDash(id){
   const p=plantoes.find(x=>x.id===id);if(!p) return;
   const parts=p.data_inicio.slice(0,10).split('-');
   selectedDate={y:parseInt(parts[0]),m:parseInt(parts[1])-1,d:parseInt(parts[2])};
   openEditPlantao(id);
 }
-
 function openAddModal(){
   if(!selectedDate){alert('Selecione um dia primeiro!');return;}
   editingId=null;recurOn=false;
@@ -880,6 +808,8 @@ function openAddModal(){
   document.getElementById('inp-valor').value='';
   document.getElementById('inp-descricao').value='';
   document.getElementById('inp-evento-titulo').value='';
+  document.getElementById('inp-tributavel').value='true';
+  document.getElementById('inp-mes-fat').value='1';
   const sel=document.getElementById('sel-local');
   sel.innerHTML='<option value="">Selecione...</option>';
   locais.forEach(l=>{const o=document.createElement('option');o.value=l.id;o.textContent=l.nome;sel.appendChild(o);});
@@ -891,18 +821,15 @@ function openAddModal(){
   setType('plantao');
   document.getElementById('overlay-add').classList.add('open');
 }
-
 function toggleRecurPgto(){
   const tipo=document.getElementById('inp-recur-pgto-tipo').value;
   document.getElementById('recur-pgto-fixo-wrap').style.display=tipo==='fixo'?'block':'none';
 }
-
 function toggleRecur(){
   recurOn=!recurOn;
   document.getElementById('recur-switch').className='toggle'+(recurOn?' on':'');
   document.getElementById('recur-options').style.display=recurOn?'block':'none';
 }
-
 function setType(t){
   eventType=t;
   document.getElementById('tb-plantao').classList.toggle('active',t==='plantao');
@@ -910,18 +837,13 @@ function setType(t){
   document.getElementById('form-plantao').style.display=t==='plantao'?'block':'none';
   document.getElementById('form-evento').style.display=t==='evento'?'block':'none';
 }
-
 function selectLocalColor(el){document.querySelectorAll('#local-colors .color-opt').forEach(e=>e.classList.remove('selected'));el.classList.add('selected');localColor=el.dataset.color;}
 function selectEventoColor(el){document.querySelectorAll('#evento-colors .color-opt').forEach(e=>e.classList.remove('selected'));el.classList.add('selected');eventoColor=el.dataset.color;}
 
 function gerarDatasRecorrentes(iniStr,fimStr,pgtoStr,freq,meses){
   const datas=[];
-  const iniBase=new Date(iniStr);
-  const fimBase=new Date(fimStr);
-  const pgtoBase=new Date(pgtoStr+'T12:00:00');
-  const diffMs=fimBase-iniBase;
-  const diffPgto=pgtoBase-iniBase;
-  const dow=iniBase.getDay();
+  const iniBase=new Date(iniStr),fimBase=new Date(fimStr),pgtoBase=new Date(pgtoStr+'T12:00:00');
+  const diffMs=fimBase-iniBase,diffPgto=pgtoBase-iniBase,dow=iniBase.getDay();
   if(freq==='semanal'){
     let cur=new Date(iniBase);cur.setDate(cur.getDate()+7);
     const end=new Date(iniBase);end.setMonth(end.getMonth()+meses);
@@ -958,12 +880,17 @@ async function saveEvent(){
       const pgto=document.getElementById('inp-pgto').value;
       const valor=parseFloat(document.getElementById('inp-valor').value);
       const descricao=document.getElementById('inp-descricao').value.trim();
-      const tributavel=document.getElementById('inp-tributavel').value==='true';
+      const tributavel=document.getElementById('inp-tributavel').value!=='false';
       const mesFatOffset=parseInt(document.getElementById('inp-mes-fat').value)||1;
+      if(!localId||!ini||!fim||!pgto||isNaN(valor)){
+        btn.disabled=false;btn.textContent='Salvar';btn.style.opacity='1';
+        return alert('Preencha todos os campos!');
+      }
+      // Calcula mes_faturamento
       const iniDate=new Date(ini);
       iniDate.setMonth(iniDate.getMonth()+mesFatOffset);
       const mesFat=iniDate.getFullYear()+'-'+String(iniDate.getMonth()+1).padStart(2,'0')+'-01';
-      if(!localId||!ini||!fim||!pgto||isNaN(valor)){btn.disabled=false;btn.textContent='Salvar';btn.style.opacity='1';return alert('Preencha todos os campos!');}
+
       if(editingId){
         await api('plantoes?id=eq.'+editingId,'PATCH',{local_id:localId,data_inicio:ini,data_fim:fim,data_pagamento:pgto,valor,descricao,tributavel,mes_faturamento:mesFat});
       } else {
@@ -981,15 +908,13 @@ async function saveEvent(){
             let dataPgto;
             if(pgtoTipo==='fixo'&&pgtoBase){
               const mesPlantao=e.ini.getMonth()+(e.ini.getFullYear()-new Date(ini).getFullYear())*12;
-              const mesPrimeiro=new Date(ini).getMonth();
-              const diff=mesPlantao-mesPrimeiro;
-              const bd=new Date(pgtoBase+'T12:00:00');
-              bd.setMonth(bd.getMonth()+diff);
+              const diff=mesPlantao-new Date(ini).getMonth();
+              const bd=new Date(pgtoBase+'T12:00:00');bd.setMonth(bd.getMonth()+diff);
               dataPgto=fmtD(bd);
-            } else {
-              dataPgto=fmtD(e.pgto);
-            }
-            await api('plantoes','POST',{local_id:localId,data_inicio:fmtDT(e.ini),data_fim:fmtDT(e.fim),data_pagamento:dataPgto,valor,descricao,recorrente_id:serieId});
+            } else {dataPgto=fmtD(e.pgto);}
+            const iniR=new Date(fmtDT(e.ini));iniR.setMonth(iniR.getMonth()+mesFatOffset);
+            const mesFatR=iniR.getFullYear()+'-'+String(iniR.getMonth()+1).padStart(2,'0')+'-01';
+            await api('plantoes','POST',{local_id:localId,data_inicio:fmtDT(e.ini),data_fim:fmtDT(e.fim),data_pagamento:dataPgto,valor,descricao,tributavel,mes_faturamento:mesFatR,recorrente_id:serieId});
           }
         }
       }
@@ -1016,7 +941,6 @@ async function saveLocal(){
   document.getElementById('inp-local-nome').value='';
   await loadAll();closeModal('overlay-local');
 }
-
 function renderLocais(){
   const list=document.getElementById('locais-list');list.innerHTML='';
   if(!locais.length){list.innerHTML='<div class="empty">Nenhum local cadastrado</div>';return;}
@@ -1034,24 +958,33 @@ function changeDashMonth(d){
   renderDash();
 }
 
+function toggleAviso(){
+  const el=document.getElementById('aviso-estimativa');
+  if(el) el.style.display=el.style.display==='none'?'block':'none';
+}
+
 function renderDash(){
   document.getElementById('dash-month-label').textContent=MONTHS[dashMonth]+' '+dashYear;
   const ym=`${dashYear}-${String(dashMonth+1).padStart(2,'0')}`;
   let doMes=plantoes.filter(p=>p.data_pagamento.slice(0,7)===ym);
   if(dashFilter!=='todos') doMes=doMes.filter(p=>p.local_id===dashFilter);
   const aRec=doMes.filter(p=>!p.recebido),rec=doMes.filter(p=>p.recebido);
-  const totalA=aRec.reduce((s,p)=>s+Number(p.valor),0),totalR=rec.reduce((s,p)=>s+Number(p.valor),0);
+  const totalA=aRec.reduce((s,p)=>s+Number(p.valor),0);
+  const totalR=rec.reduce((s,p)=>s+Number(p.valor),0);
+  const totalEntradas=totalA+totalR;
+
   const c=document.getElementById('dash-content');
   c.innerHTML=`
     <div class="card">
       <div class="card-label">Total do Mês</div>
-      <div class="card-value">${fmtMoney(totalA+totalR)}</div>
+      <div class="card-value">${fmtMoney(totalEntradas)}</div>
       <div class="card-sub">${doMes.length} plantão(ões) com pagamento em ${MONTHS[dashMonth]}</div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
       <div class="card"><div class="card-label">A Receber</div><div class="card-value yellow" style="font-size:22px">${fmtMoney(totalA)}</div><div class="card-sub">${aRec.length} plantão(ões)</div></div>
       <div class="card"><div class="card-label">Recebidos</div><div class="card-value green" style="font-size:22px">${fmtMoney(totalR)}</div><div class="card-sub">${rec.length} plantão(ões)</div></div>
     </div>`;
+
   if(aRec.length){const t=document.createElement('div');t.className='section-title';t.textContent='⏳ Aguardando Pagamento';c.appendChild(t);aRec.forEach(p=>c.appendChild(makeDashItem(p)));}
   if(rec.length){const t=document.createElement('div');t.className='section-title';t.textContent='✅ Já Recebidos';c.appendChild(t);rec.forEach(p=>c.appendChild(makeDashItem(p)));}
   if(!doMes.length){const e=document.createElement('div');e.className='empty';e.textContent='Nenhum pagamento previsto para este mês';c.appendChild(e);}
@@ -1059,50 +992,52 @@ function renderDash(){
   // CUSTOS DO MÊS
   const custos=calcularCustosMes(dashYear,dashMonth);
   if(custos){
+    const liquidoReal=totalEntradas-custos.custoTotal;
     const sec=document.createElement('div');
     sec.innerHTML=`
       <div class="section-title" style="display:flex;align-items:center;gap:8px">
         📤 CUSTOS DO MÊS
-        <span id="info-btn" style="background:var(--bg3);border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;color:var(--text2)" onclick="toggleAviso()">i</span>
+        <span style="background:var(--bg3);border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;color:var(--text2)" onclick="toggleAviso()">i</span>
       </div>
       <div id="aviso-estimativa" style="display:none;background:rgba(245,158,11,0.08);border:1px solid var(--yellow);border-radius:12px;padding:12px;margin-bottom:12px;font-size:12px;color:var(--text2);line-height:1.6">
         ⚠️ <strong>Estimativa de alta precisão.</strong> Devido à regra do RBT12 do Simples Nacional, meses atípicos podem gerar variação de 1% a 3% em relação ao boleto final.
       </div>
-      <div style="background:var(--bg3);border-radius:12px;padding:4px 0;margin-bottom:8px">
-        <div style="display:flex;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border)">
+      <div style="font-size:12px;color:var(--text3);margin-bottom:10px">ref. ${custos.refLabel} — faturamento ${fmtMoney(custos.faturamento)}</div>
+      <div style="background:var(--bg3);border-radius:12px;overflow:hidden;margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid var(--border)">
           <div>
             <div style="font-size:13px;font-weight:600">Contadora</div>
-            <div style="font-size:11px;color:var(--text3)">Dia 15 — ref. ${custos.refLabel}</div>
+            <div style="font-size:11px;color:var(--text3)">Vence dia 15</div>
           </div>
           <div style="text-align:right">
-            <div style="font-size:14px;font-weight:700;color:var(--red)">−${fmtMoney(custos.taxaCont)}</div>
+            <div style="font-size:15px;font-weight:700;color:var(--red)">−${fmtMoney(custos.taxaCont)}</div>
             <div style="font-size:11px;color:var(--text3)">${cfgCont.taxa}% s/ fat.</div>
           </div>
         </div>
-        <div style="display:flex;justify-content:space-between;padding:10px 14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px">
           <div>
-            <div style="font-size:13px;font-weight:600">DAS + INSS</div>
-            <div style="font-size:11px;color:var(--text3)">Dia 20 — ref. ${custos.refLabel}</div>
+            <div style="font-size:13px;font-weight:600">DAS + INSS${custos.faturamento>20000?' + IRPF':''}</div>
+            <div style="font-size:11px;color:var(--text3)">Vence dia 20</div>
           </div>
           <div style="text-align:right">
-            <div style="font-size:14px;font-weight:700;color:var(--red)">−${fmtMoney(custos.dasInss)}</div>
+            <div style="font-size:15px;font-weight:700;color:var(--red)">−${fmtMoney(custos.dasInss)}</div>
             <div style="font-size:11px;color:var(--text3)">${custos.aliq}% alíquota</div>
           </div>
         </div>
       </div>
-      <div style="background:rgba(99,102,241,0.1);border:1.5px solid var(--accent);border-radius:12px;padding:14px;margin-bottom:8px">
-        <div style="display:flex;justify-content:space-between;margin-bottom:6px">
-          <span style="font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px">Faturamento ref.</span>
-          <span style="font-size:14px;font-weight:600">${fmtMoney(custos.faturamento)}</span>
+      <div style="background:rgba(99,102,241,0.1);border:1.5px solid var(--accent);border-radius:12px;padding:16px;margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+          <span style="font-size:13px;color:var(--text2)">Entradas previstas</span>
+          <span style="font-size:14px;font-weight:600">${fmtMoney(totalEntradas)}</span>
         </div>
-        <div style="display:flex;justify-content:space-between;margin-bottom:6px">
-          <span style="font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px">Total custos</span>
+        <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+          <span style="font-size:13px;color:var(--text2)">Total custos</span>
           <span style="font-size:14px;font-weight:600;color:var(--red)">−${fmtMoney(custos.custoTotal)}</span>
         </div>
-        <div style="height:1px;background:var(--border);margin:8px 0"></div>
-        <div style="display:flex;justify-content:space-between">
-          <span style="font-size:13px;font-weight:700">Líquido estimado</span>
-          <span style="font-size:18px;font-weight:700;color:var(--green)">${fmtMoney(custos.faturamento-custos.custoTotal)}</span>
+        <div style="height:1px;background:var(--border);margin-bottom:10px"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:14px;font-weight:700">💵 Líquido estimado</span>
+          <span style="font-size:20px;font-weight:700;color:${liquidoReal>=0?'var(--green)':'var(--red)'}">${fmtMoney(liquidoReal)}</span>
         </div>
       </div>`;
     c.appendChild(sec);
