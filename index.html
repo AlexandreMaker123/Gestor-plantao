@@ -224,25 +224,14 @@ nav button svg{width:22px;height:22px}
     <div style="font-size:12px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Tabela DAS + INSS + IRPF</div>
     <div style="font-size:12px;color:var(--text3);line-height:1.9">
       <span style="color:var(--accent2);font-weight:600">DAS + INSS (sem IRPF — isento)</span><br>
-      Até R$15.000 → 9,08%<br>
-      R$15.001–16.000 → 9,41%<br>
-      R$16.001–17.000 → 9,69%<br>
-      R$17.001–18.000 → 9,95%<br>
-      R$18.001–19.000 → 10,17%<br>
-      R$19.001–20.000 → 10,38%<br>
-      <span style="color:var(--yellow);font-weight:600">⚠️ Acima de R$20.000 — IRPF começa a incidir</span><br>
+      Até R$15.000 → 9,08%<br>R$15.001–16.000 → 9,41%<br>R$16.001–17.000 → 9,69%<br>
+      R$17.001–18.000 → 9,95%<br>R$18.001–19.000 → 10,17%<br>R$19.001–20.000 → 10,38%<br>
+      <span style="color:var(--yellow);font-weight:600">⚠️ Acima R$20.000 — IRPF começa a incidir</span><br>
       <span style="color:var(--accent2);font-weight:600">DAS + INSS + IRPF</span><br>
-      R$20.001–21.000 → 10,80%<br>
-      R$21.001–22.000 → 11,18%<br>
-      R$22.001–23.000 → 11,54%<br>
-      R$23.001–24.000 → 11,86%<br>
-      R$24.001–25.000 → 12,16%<br>
-      R$25.001–26.000 → 12,43%<br>
-      R$26.001–27.000 → 12,68%<br>
-      <span style="color:var(--yellow);font-weight:600">⚠️ Acima de R$27.000 — teto do INSS atingido</span><br>
-      R$27.001–28.000 → 13,02%<br>
-      R$28.001–29.000 → 13,36%<br>
-      R$29.001–30.000 → 13,62%<br>
+      R$20.001–21.000 → 10,80%<br>R$21.001–22.000 → 11,18%<br>R$22.001–23.000 → 11,54%<br>
+      R$23.001–24.000 → 11,86%<br>R$24.001–25.000 → 12,16%<br>R$25.001–26.000 → 12,43%<br>R$26.001–27.000 → 12,68%<br>
+      <span style="color:var(--yellow);font-weight:600">⚠️ Acima R$27.000 — teto do INSS atingido</span><br>
+      R$27.001–28.000 → 13,02%<br>R$28.001–29.000 → 13,36%<br>R$29.001–30.000 → 13,62%<br>
       Acima R$30.000 → 13,62%
     </div>
   </div>
@@ -269,12 +258,7 @@ nav button svg{width:22px;height:22px}
 
 <!-- MODAL FILTRO -->
 <div class="overlay" id="overlay-filter" onclick="closeIfOverlay(event,'overlay-filter')">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <h3>Filtrar por Local</h3>
-    <div id="filter-options-list"></div>
-    <button class="btn btn-close" onclick="closeModal('overlay-filter')">Fechar</button>
-  </div>
+  <div class="modal"><div class="modal-handle"></div><h3>Filtrar por Local</h3><div id="filter-options-list"></div><button class="btn btn-close" onclick="closeModal('overlay-filter')">Fechar</button></div>
 </div>
 
 <!-- MODAL RESUMO ANUAL -->
@@ -424,7 +408,7 @@ nav button svg{width:22px;height:22px}
     <div class="confirm-title">Excluir?</div>
     <div class="confirm-sub" id="confirm-msg"></div>
     <div id="confirm-recur-opts" style="display:none;margin-bottom:16px">
-      <div class="filter-option" id="copt-este" onclick="selectConfirmOpt('este')">
+      <div class="filter-option selected" id="copt-este" onclick="selectConfirmOpt('este')">
         <span style="font-size:20px">1️⃣</span>
         <div style="flex:1"><div style="font-size:14px;font-weight:600">Só este plantão</div><div style="font-size:12px;color:var(--text3)">Remove apenas este dia</div></div>
         <span id="copt-este-check" style="color:var(--accent2)">✓</span>
@@ -477,26 +461,29 @@ function getAliquota(fat){
   return (TABELA_ALIQ.find(f=>fat<=f.max)||TABELA_ALIQ[TABELA_ALIQ.length-1]).pct;
 }
 
-// API
 async function api(path,method='GET',body=null){
   const o={method,headers:hdrs};
   if(body) o.body=JSON.stringify(body);
-  const r=await fetch(SUPA_URL+'/rest/v1/'+path,o);
-  if(!r.ok) return null;
-  const t=await r.text();
-  return t?JSON.parse(t):null;
+  try{
+    const r=await fetch(SUPA_URL+'/rest/v1/'+path,o);
+    if(!r.ok) return null;
+    const t=await r.text();
+    return t?JSON.parse(t):null;
+  }catch(e){console.error('API error:',e);return null;}
 }
 
 async function loadAll(){
-  locais=await api('locais?select=*&order=created_at')||[];
-  plantoes=await api('plantoes?select=*,locais(*)&order=data_inicio')||[];
-  eventos=await api('eventos?select=*&order=data')||[];
+  [locais,plantoes,eventos]=await Promise.all([
+    api('locais?select=*&order=created_at'),
+    api('plantoes?select=*,locais(*)&order=data_inicio'),
+    api('eventos?select=*&order=data')
+  ]);
+  locais=locais||[];plantoes=plantoes||[];eventos=eventos||[];
   renderCalendar();
   renderLocais();
   if(selectedDate) renderPanel();
 }
 
-// PAGES
 function showPage(name,btn){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
@@ -508,71 +495,107 @@ function showPage(name,btn){
 }
 
 // CONFIGS
-function loadNotifCfg(){const s=localStorage.getItem('notif_cfg');if(s) notifCfg=JSON.parse(s);}
+function loadNotifCfg(){const s=localStorage.getItem('notif_cfg');if(s) try{notifCfg=JSON.parse(s);}catch(e){}}
 function saveNotifCfgLocal(){localStorage.setItem('notif_cfg',JSON.stringify(notifCfg));}
-function loadCfgCont(){const s=localStorage.getItem('cfg_cont');if(s) cfgCont=JSON.parse(s);}
+function loadCfgCont(){const s=localStorage.getItem('cfg_cont');if(s) try{cfgCont=JSON.parse(s);}catch(e){}}
 function salvarCfgCont(){
   cfgCont.taxa=parseFloat(document.getElementById('inp-taxa-cont').value)||2;
   cfgCont.teto=parseFloat(document.getElementById('inp-teto-cont').value)||400;
   localStorage.setItem('cfg_cont',JSON.stringify(cfgCont));
 }
 function toggleCfg(key){notifCfg[key]=!notifCfg[key];saveNotifCfgLocal();renderConfigPage();}
-function salvarCfg(){notifCfg.antecedencia=parseInt(document.getElementById('sel-antec').value);saveNotifCfgLocal();}
-async function pedirPermissao(){if(!('Notification' in window)) return;await Notification.requestPermission();renderConfigPage();}
+function salvarCfg(){notifCfg.antecedencia=parseInt(document.getElementById('sel-antec').value)||2;saveNotifCfgLocal();}
+async function pedirPermissao(){if('Notification' in window){await Notification.requestPermission();renderConfigPage();}}
 
 function renderConfigPage(){
   const perm='Notification' in window?Notification.permission:'denied';
   document.getElementById('notif-banner').style.display=perm==='granted'?'none':'block';
   document.getElementById('tog-plantao').className='toggle'+(notifCfg.plantao?' on':'');
   document.getElementById('tog-pagamento').className='toggle'+(notifCfg.pagamento?' on':'');
-  document.getElementById('sel-antec').value=notifCfg.antecedencia;
+  document.getElementById('sel-antec').value=String(notifCfg.antecedencia);
   document.getElementById('inp-taxa-cont').value=cfgCont.taxa;
   document.getElementById('inp-teto-cont').value=cfgCont.teto;
 }
 
-// NOTIFICAÇÕES
+// NOTIFICAÇÕES — só agenda se plantão for no futuro e respeita o tempo configurado
 function agendarNotificacoes(p){
   if(!('Notification' in window)||Notification.permission!=='granted') return;
+  // Só agenda plantões futuros
+  const ini=new Date(p.data_inicio);
+  const agora=new Date();
+  if(ini<=agora) return; // plantão já passou, não agenda
+
   const chave='notif_ag_'+p.id;
   if(localStorage.getItem(chave)) return;
   localStorage.setItem(chave,'1');
-  const ini=new Date(p.data_inicio);
-  const agora=new Date();
+
   if(notifCfg.plantao){
+    // 1 dia antes
     const umDia=new Date(ini);umDia.setDate(umDia.getDate()-1);
-    if(umDia>agora) setTimeout(()=>new Notification('🏥 Plantão amanhã',{body:`${p.locais?.nome||'Plantão'} às ${p.data_inicio.slice(11,16)}`,icon:'/icon.png'}),umDia-agora);
-    const hAntes=new Date(ini);hAntes.setHours(hAntes.getHours()-notifCfg.antecedencia);
-    if(hAntes>agora) setTimeout(()=>new Notification(`⏰ Plantão em ${notifCfg.antecedencia}h`,{body:`${p.locais?.nome||'Plantão'} às ${p.data_inicio.slice(11,16)}`,icon:'/icon.png'}),hAntes-agora);
+    if(umDia>agora){
+      const ms=umDia-agora;
+      setTimeout(()=>{
+        try{new Notification('🏥 Plantão amanhã',{body:`${p.locais?.nome||'Plantão'} às ${ini.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}`,icon:'/icon.png'});}catch(e){}
+      },ms);
+    }
+    // X horas antes
+    const hAntes=new Date(ini);
+    hAntes.setHours(hAntes.getHours()-notifCfg.antecedencia);
+    if(hAntes>agora){
+      const ms=hAntes-agora;
+      setTimeout(()=>{
+        try{new Notification(`⏰ Plantão em ${notifCfg.antecedencia}h`,{body:`${p.locais?.nome||'Plantão'} às ${ini.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}`,icon:'/icon.png'});}catch(e){}
+      },ms);
+    }
   }
+
   if(notifCfg.pagamento){
     const pgto=new Date(p.data_pagamento+'T08:00:00');
+    // 3 dias antes do pagamento
     const tres=new Date(pgto);tres.setDate(tres.getDate()-3);
-    if(tres>agora) setTimeout(()=>new Notification('💰 Pagamento em 3 dias',{body:`${fmtMoney(p.valor)} — ${p.locais?.nome||''}`,icon:'/icon.png'}),tres-agora);
-    if(pgto>agora) setTimeout(()=>new Notification('📲 Pagamento hoje!',{body:`${fmtMoney(p.valor)} — ${p.locais?.nome||''}`,icon:'/icon.png'}),pgto-agora);
+    if(tres>agora){
+      const ms=tres-agora;
+      setTimeout(()=>{
+        try{new Notification('💰 Pagamento em 3 dias',{body:`${fmtMoney(p.valor)} — ${p.locais?.nome||''}`,icon:'/icon.png'});}catch(e){}
+      },ms);
+    }
+    // No dia do pagamento
+    if(pgto>agora){
+      const ms=pgto-agora;
+      setTimeout(()=>{
+        try{new Notification('📲 Pagamento hoje!',{body:`${fmtMoney(p.valor)} — ${p.locais?.nome||''}`,icon:'/icon.png'});}catch(e){}
+      },ms);
+    }
   }
 }
-function agendarTodas(){if('Notification' in window&&Notification.permission==='granted') plantoes.forEach(p=>agendarNotificacoes(p));}
+
+function agendarTodas(){
+  if('Notification' in window&&Notification.permission==='granted'){
+    plantoes.forEach(p=>agendarNotificacoes(p));
+  }
+}
 
 // CUSTOS
 function calcularCustosMes(ano,mes){
-  // Custos vencem no mês exibido — competência é 2 meses antes
   let compMes=mes-2,compAno=ano;
   if(compMes<0){compMes+=12;compAno--;}
   const ym=`${compAno}-${String(compMes+1).padStart(2,'0')}`;
+  // Usa data_inicio para identificar mês de competência
   const tributaveis=plantoes.filter(p=>{
     if(p.tributavel===false) return false;
+    if(!p.data_inicio) return false;
     return p.data_inicio.slice(0,7)===ym;
   });
   if(!tributaveis.length) return null;
-  const faturamento=tributaveis.reduce((s,p)=>s+Number(p.valor),0);
+  const faturamento=tributaveis.reduce((s,p)=>s+Number(p.valor||0),0);
   const aliq=getAliquota(faturamento);
   const taxaCont=Math.min(faturamento*(cfgCont.taxa/100),cfgCont.teto);
   const dasInss=faturamento*(aliq/100);
   const custoTotal=taxaCont+dasInss;
-  return {faturamento,aliq,custoTotal,taxaCont,dasInss,compMes,compAno,refLabel:`${MONTHS[compMes]} ${compAno}`};
+  return{faturamento,aliq,custoTotal,taxaCont,dasInss,compMes,compAno,refLabel:`${MONTHS[compMes]} ${compAno}`};
 }
 
-// YEAR
+// YEAR MODAL
 function openYearModal(){
   document.getElementById('year-label').textContent=yearView;
   renderYearModal();
@@ -589,13 +612,13 @@ function renderYearModal(){
   let totalAno=0,recAno=0;
   const totals=Array.from({length:12},(_,i)=>{
     const ym=`${yearView}-${String(i+1).padStart(2,'0')}`;
-    return plantoes.filter(p=>p.data_pagamento.slice(0,7)===ym).reduce((s,p)=>s+Number(p.valor),0);
+    return plantoes.filter(p=>p.data_pagamento&&p.data_pagamento.slice(0,7)===ym).reduce((s,p)=>s+Number(p.valor||0),0);
   });
   const maxVal=Math.max(...totals,1);
   totals.forEach((total,i)=>{
     const ym=`${yearView}-${String(i+1).padStart(2,'0')}`;
-    const doMes=plantoes.filter(p=>p.data_pagamento.slice(0,7)===ym);
-    const recebido=doMes.filter(p=>p.recebido).reduce((s,p)=>s+Number(p.valor),0);
+    const doMes=plantoes.filter(p=>p.data_pagamento&&p.data_pagamento.slice(0,7)===ym);
+    const recebido=doMes.filter(p=>p.recebido).reduce((s,p)=>s+Number(p.valor||0),0);
     totalAno+=total;recAno+=recebido;
     const pct=Math.round((total/maxVal)*100);
     const pctRec=total>0?Math.round((recebido/total)*100):0;
@@ -621,8 +644,7 @@ function renderYearModal(){
 function openFilterModal(ctx){
   const curFilter=ctx==='cal'?calFilter:dashFilter;
   const list=document.getElementById('filter-options-list');list.innerHTML='';
-  const opts=[{id:'todos',label:'Todos os locais',cor:'#6366f1'},...locais.map(l=>({id:l.id,label:l.nome,cor:l.cor}))];
-  opts.forEach(opt=>{
+  [{id:'todos',label:'Todos os locais',cor:'#6366f1'},...locais.map(l=>({id:l.id,label:l.nome,cor:l.cor}))].forEach(opt=>{
     const el=document.createElement('div');
     el.className='filter-option'+(curFilter===opt.id?' selected':'');
     el.innerHTML=`<div style="width:12px;height:12px;border-radius:50%;background:${opt.cor};flex-shrink:0"></div><span style="flex:1;font-size:15px">${opt.label}</span>${curFilter===opt.id?'<span style="color:var(--accent2)">✓</span>':''}`;
@@ -672,7 +694,7 @@ function makeDay(d,m,y,other,isToday,isSel){
   const numEl=document.createElement('div');numEl.className='day-num';numEl.textContent=d;el.appendChild(numEl);
   const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
   const dots=document.createElement('div');dots.className='day-dots';
-  let dayP=plantoes.filter(p=>ds>=p.data_inicio.slice(0,10)&&ds<=p.data_fim.slice(0,10));
+  let dayP=plantoes.filter(p=>p.data_inicio&&p.data_fim&&ds>=p.data_inicio.slice(0,10)&&ds<=p.data_fim.slice(0,10));
   if(calFilter!=='todos') dayP=dayP.filter(p=>p.local_id===calFilter);
   dayP.forEach(p=>{const dot=document.createElement('div');dot.className='dot';dot.style.background=p.locais?.cor||'#6366f1';dots.appendChild(dot);});
   if(calFilter==='todos') eventos.forEach(e=>{if(e.data===ds){const dot=document.createElement('div');dot.className='dot';dot.style.background=e.cor||'#6366f1';dots.appendChild(dot);}});
@@ -691,13 +713,14 @@ function renderPanel(){
   const dows=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
   lbl.textContent=`${dows[new Date(y,m,d).getDay()]}, ${String(d).padStart(2,'0')}/${String(m+1).padStart(2,'0')}/${y}`;
   panel.innerHTML='';
-  let dayP=plantoes.filter(p=>ds>=p.data_inicio.slice(0,10)&&ds<=p.data_fim.slice(0,10));
+  let dayP=plantoes.filter(p=>p.data_inicio&&p.data_fim&&ds>=p.data_inicio.slice(0,10)&&ds<=p.data_fim.slice(0,10));
   if(calFilter!=='todos') dayP=dayP.filter(p=>p.local_id===calFilter);
   const dayE=calFilter==='todos'?eventos.filter(e=>e.data===ds):[];
   if(!dayP.length&&!dayE.length){panel.innerHTML='<div class="empty-day">Nenhum compromisso neste dia</div>';return;}
   dayP.forEach(p=>{
     const el=document.createElement('div');el.className='event-card';
     const desc=p.descricao?`<div class="event-desc">${p.descricao}</div>`:'';
+    const nome=(p.locais?.nome||'Plantão').replace(/'/g,"\\'");
     el.innerHTML=`
       <div class="event-bar" style="background:${p.locais?.cor||'#6366f1'}"></div>
       <div class="event-info">
@@ -710,21 +733,22 @@ function renderPanel(){
       </div>
       <div class="event-actions">
         <button class="event-btn" onclick="openEditPlantao('${p.id}')">✏️</button>
-        <button class="event-btn" onclick="confirmDelete('plantao','${p.id}','${(p.locais?.nome||'Plantão').replace(/'/g,"\\'")}')">🗑</button>
+        <button class="event-btn" onclick="confirmDelete('plantao','${p.id}','${nome}')">🗑</button>
       </div>`;
     panel.appendChild(el);
   });
   dayE.forEach(e=>{
+    const titulo=e.titulo.replace(/'/g,"\\'");
     const el=document.createElement('div');el.className='event-card';
     el.innerHTML=`
       <div class="event-bar" style="background:${e.cor||'#6366f1'}"></div>
       <div class="event-info"><div class="event-title">${e.titulo}</div><div class="event-sub">${e.tipo}</div></div>
-      <div class="event-actions"><button class="event-btn" onclick="confirmDelete('evento','${e.id}','${e.titulo.replace(/'/g,"\\'")}')">🗑</button></div>`;
+      <div class="event-actions"><button class="event-btn" onclick="confirmDelete('evento','${e.id}','${titulo}')">🗑</button></div>`;
     panel.appendChild(el);
   });
 }
 
-// CONFIRM DELETE
+// DELETE
 function selectConfirmOpt(opt){
   confirmRecurOpt=opt;
   ['este','futuros','todos'].forEach(o=>{
@@ -749,8 +773,8 @@ async function doDelete(type,id,p){
         await api('plantoes?recorrente_id=eq.'+p.recorrente_id,'DELETE');
         plantoes=plantoes.filter(x=>x.recorrente_id!==p.recorrente_id);
       } else {
-        const dataBase=p.data_inicio.slice(0,10);
-        const ids=plantoes.filter(x=>x.recorrente_id===p.recorrente_id&&x.data_inicio.slice(0,10)>=dataBase).map(x=>x.id);
+        const base=p.data_inicio.slice(0,10);
+        const ids=plantoes.filter(x=>x.recorrente_id===p.recorrente_id&&x.data_inicio.slice(0,10)>=base).map(x=>x.id);
         for(const xid of ids) await api('plantoes?id=eq.'+xid,'DELETE');
         plantoes=plantoes.filter(x=>!ids.includes(x.id));
       }
@@ -767,7 +791,7 @@ async function doDelete(type,id,p){
   renderCalendar();renderPanel();renderDash();
 }
 
-// EDIT
+// EDIT / ADD
 function openEditPlantao(id){
   const p=plantoes.find(x=>x.id===id);if(!p) return;
   editingId=id;
@@ -776,10 +800,10 @@ function openEditPlantao(id){
   sel.innerHTML='<option value="">Selecione...</option>';
   locais.forEach(l=>{const o=document.createElement('option');o.value=l.id;o.textContent=l.nome;sel.appendChild(o);});
   sel.value=p.local_id||'';
-  document.getElementById('inp-inicio').value=p.data_inicio.slice(0,16);
-  document.getElementById('inp-fim').value=p.data_fim.slice(0,16);
-  document.getElementById('inp-pgto').value=p.data_pagamento;
-  document.getElementById('inp-valor').value=p.valor;
+  document.getElementById('inp-inicio').value=p.data_inicio?p.data_inicio.slice(0,16):'';
+  document.getElementById('inp-fim').value=p.data_fim?p.data_fim.slice(0,16):'';
+  document.getElementById('inp-pgto').value=p.data_pagamento||'';
+  document.getElementById('inp-valor').value=p.valor||'';
   document.getElementById('inp-descricao').value=p.descricao||'';
   document.getElementById('inp-tributavel').value=p.tributavel===false?'false':'true';
   document.getElementById('inp-mes-fat').value='1';
@@ -822,8 +846,7 @@ function openAddModal(){
   document.getElementById('overlay-add').classList.add('open');
 }
 function toggleRecurPgto(){
-  const tipo=document.getElementById('inp-recur-pgto-tipo').value;
-  document.getElementById('recur-pgto-fixo-wrap').style.display=tipo==='fixo'?'block':'none';
+  document.getElementById('recur-pgto-fixo-wrap').style.display=document.getElementById('inp-recur-pgto-tipo').value==='fixo'?'block':'none';
 }
 function toggleRecur(){
   recurOn=!recurOn;
@@ -841,8 +864,7 @@ function selectLocalColor(el){document.querySelectorAll('#local-colors .color-op
 function selectEventoColor(el){document.querySelectorAll('#evento-colors .color-opt').forEach(e=>e.classList.remove('selected'));el.classList.add('selected');eventoColor=el.dataset.color;}
 
 function gerarDatasRecorrentes(iniStr,fimStr,pgtoStr,freq,meses){
-  const datas=[];
-  const iniBase=new Date(iniStr),fimBase=new Date(fimStr),pgtoBase=new Date(pgtoStr+'T12:00:00');
+  const datas=[],iniBase=new Date(iniStr),fimBase=new Date(fimStr),pgtoBase=new Date(pgtoStr+'T12:00:00');
   const diffMs=fimBase-iniBase,diffPgto=pgtoBase-iniBase,dow=iniBase.getDay();
   if(freq==='semanal'){
     let cur=new Date(iniBase);cur.setDate(cur.getDate()+7);
@@ -884,13 +906,11 @@ async function saveEvent(){
       const mesFatOffset=parseInt(document.getElementById('inp-mes-fat').value)||1;
       if(!localId||!ini||!fim||!pgto||isNaN(valor)){
         btn.disabled=false;btn.textContent='Salvar';btn.style.opacity='1';
-        return alert('Preencha todos os campos!');
+        alert('Preencha todos os campos!');return;
       }
-      // Calcula mes_faturamento
       const iniDate=new Date(ini);
       iniDate.setMonth(iniDate.getMonth()+mesFatOffset);
       const mesFat=iniDate.getFullYear()+'-'+String(iniDate.getMonth()+1).padStart(2,'0')+'-01';
-
       if(editingId){
         await api('plantoes?id=eq.'+editingId,'PATCH',{local_id:localId,data_inicio:ini,data_fim:fim,data_pagamento:pgto,valor,descricao,tributavel,mes_faturamento:mesFat});
       } else {
@@ -907,11 +927,10 @@ async function saveEvent(){
           for(const e of extras){
             let dataPgto;
             if(pgtoTipo==='fixo'&&pgtoBase){
-              const mesPlantao=e.ini.getMonth()+(e.ini.getFullYear()-new Date(ini).getFullYear())*12;
-              const diff=mesPlantao-new Date(ini).getMonth();
+              const diff=(e.ini.getMonth()+(e.ini.getFullYear()-new Date(ini).getFullYear())*12)-new Date(ini).getMonth();
               const bd=new Date(pgtoBase+'T12:00:00');bd.setMonth(bd.getMonth()+diff);
               dataPgto=fmtD(bd);
-            } else {dataPgto=fmtD(e.pgto);}
+            } else dataPgto=fmtD(e.pgto);
             const iniR=new Date(fmtDT(e.ini));iniR.setMonth(iniR.getMonth()+mesFatOffset);
             const mesFatR=iniR.getFullYear()+'-'+String(iniR.getMonth()+1).padStart(2,'0')+'-01';
             await api('plantoes','POST',{local_id:localId,data_inicio:fmtDT(e.ini),data_fim:fmtDT(e.fim),data_pagamento:dataPgto,valor,descricao,tributavel,mes_faturamento:mesFatR,recorrente_id:serieId});
@@ -921,22 +940,21 @@ async function saveEvent(){
     } else {
       const titulo=document.getElementById('inp-evento-titulo').value.trim();
       const tipo=document.getElementById('inp-evento-tipo').value;
-      if(!titulo){btn.disabled=false;btn.textContent='Salvar';btn.style.opacity='1';return alert('Informe a descrição!');}
+      if(!titulo){btn.disabled=false;btn.textContent='Salvar';btn.style.opacity='1';alert('Informe a descrição!');return;}
       const {d,m,y}=selectedDate;
-      const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-      await api('eventos','POST',{titulo,data:ds,tipo,cor:eventoColor});
+      await api('eventos','POST',{titulo,data:`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`,tipo,cor:eventoColor});
     }
     await loadAll();renderPanel();renderDash();
     agendarTodas();
     closeModal('overlay-add');
-  } catch(e){console.error(e);}
+  }catch(e){console.error('saveEvent error:',e);alert('Erro ao salvar. Tente novamente.');}
   finally{btn.disabled=false;btn.textContent='Salvar';btn.style.opacity='1';}
 }
 
 function openLocalModal(){document.getElementById('overlay-local').classList.add('open');}
 async function saveLocal(){
   const nome=document.getElementById('inp-local-nome').value.trim();
-  if(!nome) return alert('Informe o nome!');
+  if(!nome){alert('Informe o nome!');return;}
   await api('locais','POST',{nome,cor:localColor});
   document.getElementById('inp-local-nome').value='';
   await loadAll();closeModal('overlay-local');
@@ -946,7 +964,8 @@ function renderLocais(){
   if(!locais.length){list.innerHTML='<div class="empty">Nenhum local cadastrado</div>';return;}
   locais.forEach(l=>{
     const el=document.createElement('div');el.className='local-item';
-    el.innerHTML=`<div class="local-dot" style="background:${l.cor}"></div><span class="local-name">${l.nome}</span><button class="local-del" onclick="confirmDelete('local','${l.id}','${l.nome.replace(/'/g,"\\'")}')">🗑</button>`;
+    const nome=l.nome.replace(/'/g,"\\'");
+    el.innerHTML=`<div class="local-dot" style="background:${l.cor}"></div><span class="local-name">${l.nome}</span><button class="local-del" onclick="confirmDelete('local','${l.id}','${nome}')">🗑</button>`;
     list.appendChild(el);
   });
 }
@@ -966,11 +985,11 @@ function toggleAviso(){
 function renderDash(){
   document.getElementById('dash-month-label').textContent=MONTHS[dashMonth]+' '+dashYear;
   const ym=`${dashYear}-${String(dashMonth+1).padStart(2,'0')}`;
-  let doMes=plantoes.filter(p=>p.data_pagamento.slice(0,7)===ym);
+  let doMes=plantoes.filter(p=>p.data_pagamento&&p.data_pagamento.slice(0,7)===ym);
   if(dashFilter!=='todos') doMes=doMes.filter(p=>p.local_id===dashFilter);
   const aRec=doMes.filter(p=>!p.recebido),rec=doMes.filter(p=>p.recebido);
-  const totalA=aRec.reduce((s,p)=>s+Number(p.valor),0);
-  const totalR=rec.reduce((s,p)=>s+Number(p.valor),0);
+  const totalA=aRec.reduce((s,p)=>s+Number(p.valor||0),0);
+  const totalR=rec.reduce((s,p)=>s+Number(p.valor||0),0);
   const totalEntradas=totalA+totalR;
 
   const c=document.getElementById('dash-content');
@@ -985,11 +1004,7 @@ function renderDash(){
       <div class="card"><div class="card-label">Recebidos</div><div class="card-value green" style="font-size:22px">${fmtMoney(totalR)}</div><div class="card-sub">${rec.length} plantão(ões)</div></div>
     </div>`;
 
-  if(aRec.length){const t=document.createElement('div');t.className='section-title';t.textContent='⏳ Aguardando Pagamento';c.appendChild(t);aRec.forEach(p=>c.appendChild(makeDashItem(p)));}
-  if(rec.length){const t=document.createElement('div');t.className='section-title';t.textContent='✅ Já Recebidos';c.appendChild(t);rec.forEach(p=>c.appendChild(makeDashItem(p)));}
-  if(!doMes.length){const e=document.createElement('div');e.className='empty';e.textContent='Nenhum pagamento previsto para este mês';c.appendChild(e);}
-
-  // CUSTOS DO MÊS
+  // CUSTOS primeiro
   const custos=calcularCustosMes(dashYear,dashMonth);
   if(custos){
     const liquidoReal=totalEntradas-custos.custoTotal;
@@ -1025,7 +1040,7 @@ function renderDash(){
           </div>
         </div>
       </div>
-      <div style="background:rgba(99,102,241,0.1);border:1.5px solid var(--accent);border-radius:12px;padding:16px;margin-bottom:8px">
+      <div style="background:rgba(99,102,241,0.1);border:1.5px solid var(--accent);border-radius:12px;padding:16px;margin-bottom:14px">
         <div style="display:flex;justify-content:space-between;margin-bottom:8px">
           <span style="font-size:13px;color:var(--text2)">Entradas previstas</span>
           <span style="font-size:14px;font-weight:600">${fmtMoney(totalEntradas)}</span>
@@ -1042,11 +1057,16 @@ function renderDash(){
       </div>`;
     c.appendChild(sec);
   }
+
+  // Depois os pagamentos
+  if(aRec.length){const t=document.createElement('div');t.className='section-title';t.textContent='⏳ Aguardando Pagamento';c.appendChild(t);aRec.forEach(p=>c.appendChild(makeDashItem(p)));}
+  if(rec.length){const t=document.createElement('div');t.className='section-title';t.textContent='✅ Já Recebidos';c.appendChild(t);rec.forEach(p=>c.appendChild(makeDashItem(p)));}
+  if(!doMes.length){const e=document.createElement('div');e.className='empty';e.textContent='Nenhum pagamento previsto para este mês';c.appendChild(e);}
 }
 
 function makeDashItem(p){
   const el=document.createElement('div');el.className='plantao-item';
-  const ini=p.data_inicio.slice(0,10).split('-').reverse().join('/');
+  const ini=p.data_inicio?p.data_inicio.slice(0,10).split('-').reverse().join('/'):'-';
   const pgto=new Date(p.data_pagamento+'T12:00:00');
   const hoje=new Date();hoje.setHours(0,0,0,0);
   const diff=Math.ceil((pgto-hoje)/(1000*60*60*24));
@@ -1057,6 +1077,7 @@ function makeDashItem(p){
     else diasLabel=`⚠️ Vencido há ${Math.abs(diff)} dia${Math.abs(diff)>1?'s':''}`;
   }
   const desc=p.descricao?`<div class="plantao-data" style="color:var(--text2)">${p.descricao}</div>`:'';
+  const nome=(p.locais?.nome||'Plantão').replace(/'/g,"\\'");
   el.innerHTML=`
     <div class="plantao-info">
       <div class="plantao-cor" style="background:${p.locais?.cor||'#6366f1'}"></div>
@@ -1068,11 +1089,11 @@ function makeDashItem(p){
     </div>
     <div style="display:flex;align-items:center;flex-shrink:0">
       <div class="plantao-val">
-        <div class="plantao-valor">${fmtMoney(p.valor)}</div>
+        <div class="plantao-valor">${fmtMoney(p.valor||0)}</div>
         <div class="plantao-data ${p.recebido?'status-rec':'status-pend'}">${p.recebido?'✅ Recebido':'Pendente'}</div>
       </div>
       <button class="edit-btn-dash" onclick="openEditFromDash('${p.id}')">✏️</button>
-      <button class="check-btn ${p.recebido?'done':''}" onclick="toggleRecebido('${p.id}',${p.recebido})">✓</button>
+      <button class="check-btn ${p.recebido?'done':''}" onclick="toggleRecebido('${p.id}',${!!p.recebido})">✓</button>
     </div>`;
   return el;
 }
@@ -1082,7 +1103,7 @@ async function toggleRecebido(id,atual){
   await loadAll();renderDash();
 }
 
-function fmtMoney(v){return'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2});}
+function fmtMoney(v){return'R$ '+Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2});}
 function closeModal(id){document.getElementById(id).classList.remove('open');editingId=null;recurOn=false;}
 function closeIfOverlay(e,id){if(e.target.id===id)closeModal(id);}
 
